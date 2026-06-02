@@ -21,8 +21,8 @@ class TravelAgentPlanner:
         if self.api_key:
             try:
                 genai.configure(api_key=self.api_key)
-                genai.get_model("models/gemini-1.5-flash") # Verifies key via network
                 self.model = genai.GenerativeModel("gemini-1.5-flash")
+                self.model.count_tokens("test") # Verifies key via network
                 self.llm_available = True
                 print("Gemini API successfully configured.")
             except Exception as e:
@@ -35,8 +35,8 @@ class TravelAgentPlanner:
         if api_key:
             try:
                 genai.configure(api_key=api_key)
-                genai.get_model("models/gemini-1.5-flash") # Verifies key via network
                 self.model = genai.GenerativeModel("gemini-1.5-flash")
+                self.model.count_tokens("test") # Verifies key via network
                 self.llm_available = True
             except Exception as e:
                 self.llm_available = False
@@ -514,7 +514,13 @@ Plan-and-Execute architecture with real-time tool use and multi-hop RAG from Wik
      pulled from those sources. This makes the plan feel locally authoritative, not generic.
    - Cite specific place names, streets, dishes, and cultural notes from the RAG context.
 
-5. ADAPTIVE SUGGESTIONS
+5. REALISTIC INTERNAL KNOWLEDGE & SPECIFICITY
+   - If the tool data for attractions or accommodation is empty or sparse, DO NOT output "Not specified" or use generic placeholders.
+   - Instead, tap into your extensive internal knowledge to recommend REAL, specific hotels, restaurants, cafes, and neighborhoods.
+   - Assign realistic estimated prices in USD for all recommendations.
+   - For dining, recommend specific real restaurants and local street food spots (e.g., "Din Tai Fung" or "Borough Market"), rather than generic phrases like "local street vendor" or "central food markets".
+
+6. ADAPTIVE SUGGESTIONS
    - If something the user wants is not feasible (budget, pet policy, closed attraction),
      proactively suggest a concrete alternative rather than just saying "not available".
 
