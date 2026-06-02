@@ -357,9 +357,13 @@ Structure your response perfectly in Markdown:
         md.append(f"\n---\n")
         md.append(f"## 🏨 Recommended Lodging")
         md.append(f"**{hotel_name}**")
-        md.append(f"- **Price**: ${selected_hotel.get('price_per_night_usd', 0)}/night (Total for 2 nights: **${hotel_cost_2_nights}**)")
-        md.append(f"- **Rating**: {selected_hotel.get('rating', '4.5')}/5")
-        md.append(f"- *{hotel_desc}*")
+        if selected_hotel:
+            md.append(f"- **Price**: ${selected_hotel.get('price_per_night_usd', 0)}/night (Total for 2 nights: **${hotel_cost_2_nights}**)")
+            md.append(f"- **Rating**: {selected_hotel.get('rating', '4.5')}/5")
+            md.append(f"- *{hotel_desc}*")
+        else:
+            md.append(f"- **Price**: Not available (over budget/constraint limits)")
+            md.append(f"- *Advice: No lodging in our database matches both your max hotel budget limit and pet-friendliness requirements. Consider adjusting your overall budget limit or relaxing pet constraints.*")
         
         md.append(f"\n---\n")
         md.append(f"## 🗺️ Day-by-Day Travel Schedule")
