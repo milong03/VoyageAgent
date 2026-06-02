@@ -45,50 +45,38 @@ class TravelAgentPlanner:
     # ──────────────────────────────────────────────────────────────────────────
     # INTENT DETECTION
     # ──────────────────────────────────────────────────────────────────────────
-    def _detect_intent(self, text: str) -> str:
+    def _analyze_query_with_llm(self, text: str) -> dict:
         """
-        Classifies the user message into one of:
-        - 'plan_trip'       : User wants a full itinerary
-        - 'budget_advice'   : User is asking what budget is needed / if theirs is enough
-        - 'follow_up'       : User is asking a follow-up question about the last response
-        - 'general_advice'  : Open-ended travel advice without a specific trip request
+        Uses Gemini to extract intent and parameters from the user's query.
+        Returns JSON with: intent, city, country, budget, pet_friendly, interests
         """
-        t = text.lower()
+        history_text = self._format_history_for_prompt()
+        prompt = f"""You are a travel planning AI's preprocessing engine. 
+Analyze the user's message and the conversation history to extract parameters.
 
-        # Follow-up signals — refers to previous conversation
-        follow_up_signals = [
-            "that", "it", "this", "those", "the one", "the hotel", "the plan",
-            "you mentioned", "what about", "tell me more", "explain", "why",
-            "how much is that", "too expensive", "cheaper option", "alternative",
-            "is that good", "what do you think", "any other", "instead"
-        ]
-        if self.short_memory.get_context() and any(s in t for s in follow_up_signals):
-            return "follow_up"
+CONVERSATION HISTORY:
+{history_text}
 
-        # Budget advice signals
-        budget_advice_signals = [
-            "how much", "what budget", "what is a good budget", "recommend a budget",
-            "suggest a budget", "what should i budget", "minimum budget", "how expensive",
-            "is my budget enough", "is that enough", "can i afford", "is $", "is it cheap",
-            "how much does it cost", "cost of", "price of", "how much money",
-            "what would it cost", "realistic budget", "reasonable budget"
-        ]
-        if any(s in t for s in budget_advice_signals):
-            return "budget_advice"
+USER MESSAGE:
+"{text}"
 
-        # General travel advice — no specific trip request
-        general_advice_signals = [
-            "what should i do", "what to do", "best time to visit", "tips for",
-            "advice for", "what to see", "must see", "recommend", "what is",
-            "tell me about", "describe", "what's it like", "what is it like"
-        ]
-        if any(s in t for s in general_advice_signals):
-            # Only general if no city or no planning verb
-            planning_verbs = ["plan", "book", "trip", "visit", "go to", "travel", "itinerary"]
-            if not any(v in t for v in planning_verbs):
-                return "general_advice"
+Extract the following as a JSON object:
+- "intent": one of ["plan_trip", "budget_advice", "follow_up", "general_advice"]
+- "city": The specific destination city. If they mention a country but no city, leave city as null.
+- "country": The country mentioned, if any.
+- "budget": Numeric maximum budget in USD, or null if none.
+- "pet_friendly": boolean (true/false)
+- "interests": list of string keywords (e.g. ["history", "food", "nature", "shopping"])
 
-        return "plan_trip"
+Respond ONLY with valid JSON matching this schema.
+"""
+        import json
+        try:
+            model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
+            response = model.generate_content(prompt)
+            return json.loads(response.text)
+        except Exception as e:
+            raise RuntimeError(f"Gemini pre-processing failed: {e}")
 
     # ──────────────────────────────────────────────────────────────────────────
     # BUDGET FEASIBILITY
@@ -196,23 +184,6 @@ INSTRUCTIONS:
                 gemini_error = str(e)
                 print(f"Advisory Gemini error: {gemini_error}")
 
-        # Local fallback for advisory queries
-        if city and intent == "budget_advice":
-            feasibility = self._check_budget_feasibility(city, None, False)
-            return (
-                f"## Budget Guide for {city}\n\n"
-                f"Here are estimated costs for a 2-day trip:\n\n"
-                f"| Category | Estimate |\n"
-                f"| :--- | :--- |\n"
-                f"| Cheapest hotel (2 nights) | ${feasibility['cheapest_hotel_per_night'] * 2} |\n"
-                f"| Food (2 days at $35/day) | $70 |\n"
-                f"| Local transport (2 days) | $30 |\n"
-                f"| **Minimum viable total** | **${feasibility['min_viable_budget']}** |\n"
-                f"| **Comfortable recommended** | **${feasibility['recommended_budget']}** |\n\n"
-                f"For a more relaxed experience with mid-range hotels and activities, "
-                f"I would recommend budgeting around **${feasibility['recommended_budget']}**."
-            )
-
         # If LLM failed, tell the user explicitly why they can't ask dynamic questions
         if gemini_error or not self.llm_available:
             return (
@@ -235,20 +206,43 @@ INSTRUCTIONS:
         plan_logs = []
         plan_logs.append("Analyzing user query and session context...")
 
-        # 1. Extract parameters first so we know which city context to use
-        extracted = self._extract_parameters(user_query)
-        city = extracted["city"]
+        # 0. STRICT ONLINE ENFORCEMENT
+        if not self.llm_available:
+            error_msg = (
+                "> **🔌 API Key Missing or Invalid**\n>\n"
+                "> VoyageAgent is currently offline. To process travel requests, understand context, "
+                "and generate dynamic itineraries, I require a valid Gemini API Key.\n>\n"
+                "> Please enter your API Key in the Settings menu (top right) to continue."
+            )
+            self.short_memory.add_message("assistant", error_msg)
+            return {
+                "response": error_msg,
+                "planning_steps": plan_logs,
+                "parameters": {},
+                "preferences_used": [],
+                "hops_log": [],
+                "success": False,
+                "clarification_needed": True
+            }
 
+        # 1. Extract parameters and intent using Gemini
+        plan_logs.append("Calling Gemini pre-processing engine...")
+        try:
+            extracted = self._analyze_query_with_llm(user_query)
+        except Exception as e:
+            plan_logs.append(f"Pre-processing error: {e}")
+            extracted = {"intent": "plan_trip", "city": None, "country": None, "budget": None, "pet_friendly": False, "interests": []}
+
+        city = extracted.get("city")
+        intent = extracted.get("intent", "plan_trip")
+        
         # 2. Update short-term memory grouped by the active city
         self.short_memory.add_message("user", user_query, city=city)
-
-        # 3. Detect intent (uses context of active city)
-        intent = self._detect_intent(user_query)
         plan_logs.append(f"Intent detected: '{intent}'")
 
-        budget = extracted["budget"]
-        pet_friendly = extracted["pet_friendly"]
-        interests = extracted["interests"]
+        budget = extracted.get("budget")
+        pet_friendly = extracted.get("pet_friendly", False)
+        interests = extracted.get("interests", [])
 
         plan_logs.append(
             f"Extracted parameters -> City: {city or 'Unknown'}, Budget: {budget or 'Not specified'}, "
@@ -449,103 +443,7 @@ INSTRUCTIONS:
         recent = history[:-1]
         return "\n".join([f"{m['role'].upper()}: {m['content'][:600]}" for m in recent])
 
-    def _extract_parameters(self, text: str) -> dict:
-        """Parses city, budget, pet-friendliness, and tags/interests from text."""
-        text_lower = text.lower()
 
-        # 1. City extraction
-        city = None
-        if "tokyo" in text_lower:
-            city = "Tokyo"
-        elif "paris" in text_lower:
-            city = "Paris"
-        elif "singapore" in text_lower:
-            city = "Singapore"
-        elif "rome" in text_lower:
-            city = "Rome"
-        elif "london" in text_lower:
-            city = "London"
-        else:
-            match = re.search(
-                r'\b(?:how about|what about|trip to|visit|go to|weekend in|travel to|traveling to)\s+([a-z]+(?:\s+[a-z]+){0,2})',
-                text_lower
-            )
-            if match:
-                extracted_city = match.group(1).strip()
-                stop_words = ["my", "with", "a", "an", "the", "on", "for", "and", "some", "budget", "in"]
-                city_words = []
-                for w in extracted_city.split():
-                    if w in stop_words:
-                        break
-                    city_words.append(w.capitalize())
-                if city_words:
-                    city = " ".join(city_words)
-
-            if not city:
-                words = [w.strip(",.!?") for w in text.split()]
-                non_stop = [w for w in words if w.lower() not in [
-                    "i", "want", "to", "plan", "a", "trip", "visit", "go", "weekend",
-                    "in", "with", "my", "dog", "cat", "pet", "budget", "and", "the", "an",
-                    "how", "about", "what", "is", "for", "any", "good"
-                ]]
-                if len(non_stop) == 1:
-                    city = non_stop[0].capitalize()
-
-        # Filter out country names
-        countries = {
-            "japan", "france", "italy", "germany", "spain", "uk", "usa", "united states",
-            "united kingdom", "canada", "australia", "china", "india", "brazil", "mexico",
-            "korea", "malaysia", "thailand", "vietnam", "indonesia", "philippines", "greece",
-            "egypt", "turkey", "switzerland", "sweden", "norway", "denmark", "finland",
-            "netherlands", "belgium", "austria", "portugal", "russia", "new zealand",
-            "south africa", "argentina", "colombia", "peru", "chile", "ireland", "poland"
-        }
-        country = None
-        if city and city.lower() in countries:
-            country = city
-            city = None
-
-        # Expand common city abbreviations
-        abbreviations = {
-            "kl": "Kuala Lumpur",
-            "nyc": "New York City",
-            "la": "Los Angeles",
-            "sf": "San Francisco",
-            "hk": "Hong Kong",
-            "dc": "Washington",
-            "bkk": "Bangkok",
-            "dxb": "Dubai"
-        }
-        if city and city.lower() in abbreviations:
-            city = abbreviations[city.lower()]
-
-        # 2. Budget extraction
-        budget = None
-        budget_match = re.search(r'(-?\d+)\s*(?:budget|dollars|usd|max)', text_lower)
-        if not budget_match:
-            budget_match = re.search(
-                r'(?:budget\s*of|budget\s*:\s*|budget|max\s*of|max\s*:\s*|max)\s*\$?(-?\d+)',
-                text_lower
-            )
-        if not budget_match:
-            budget_match = re.search(r'\$\s*(-?\d+)', text_lower)
-        if budget_match:
-            budget = float(budget_match.group(1))
-
-        # 3. Pet friendly
-        pet_friendly = any(kw in text_lower for kw in ["pet", "dog", "cat", "animal", "puppy", "canine"])
-
-        # 4. Interests
-        interests = []
-        interest_keywords = [
-            "anime", "sushi", "culture", "art", "museum", "shopping", "nature",
-            "historical", "beach", "relax", "kids", "sightseeing", "romance", "food"
-        ]
-        for kw in interest_keywords:
-            if kw in text_lower:
-                interests.append(kw)
-
-        return {"city": city, "country": country, "budget": budget, "pet_friendly": pet_friendly, "interests": interests}
 
     def _detect_new_preferences(self, text: str, params: dict) -> list:
         """Finds long-term preferences that should be stored in FAISS."""
