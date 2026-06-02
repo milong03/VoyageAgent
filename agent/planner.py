@@ -1,7 +1,8 @@
 import os
 import re
 import json
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from agent.memory import FAISSPreferenceMemory, ShortTermMemory
 from agent.tools import TravelTools
 from agent.rag import MultiHopRAG, TRAVEL_BLOGS
@@ -20,9 +21,8 @@ class TravelAgentPlanner:
         self.llm_available = False
         if self.api_key:
             try:
-                genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel("gemini-1.5-flash")
-                self.model.count_tokens("test") # Verifies key via network
+                self.client = genai.Client(api_key=self.api_key)
+                self.client.models.count_tokens(model="gemini-2.5-flash", contents="test") # Verifies key via network
                 self.llm_available = True
                 print("Gemini API successfully configured.")
             except Exception as e:
@@ -34,9 +34,8 @@ class TravelAgentPlanner:
         self.api_key = api_key
         if api_key:
             try:
-                genai.configure(api_key=api_key)
-                self.model = genai.GenerativeModel("gemini-1.5-flash")
-                self.model.count_tokens("test") # Verifies key via network
+                self.client = genai.Client(api_key=api_key)
+                self.client.models.count_tokens(model="gemini-2.5-flash", contents="test") # Verifies key via network
                 self.llm_available = True
             except Exception as e:
                 self.llm_available = False
@@ -74,8 +73,11 @@ Respond ONLY with valid JSON matching this schema.
 """
         import json
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
-            response = model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(response_mime_type="application/json")
+            )
             return json.loads(response.text)
         except Exception as e:
             raise RuntimeError(f"Gemini pre-processing failed: {e}")
@@ -180,7 +182,10 @@ INSTRUCTIONS:
 - Format clearly in Markdown.
 """
             try:
-                response_obj = self.model.generate_content(prompt)
+                response_obj = self.client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt
+                )
                 return response_obj.text
             except Exception as e:
                 gemini_error = str(e)
@@ -380,7 +385,10 @@ INSTRUCTIONS:
             )
             try:
                 plan_logs.append("Sending prompt with tool outputs and RAG context to Gemini model...")
-                response_obj = self.model.generate_content(prompt)
+                response_obj = self.client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt
+                )
                 agent_response = response_obj.text
                 plan_logs.append("Gemini response received.")
             except Exception as e:
