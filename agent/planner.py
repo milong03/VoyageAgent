@@ -272,7 +272,7 @@ INSTRUCTIONS:
                     if "dog" in pref_text or "pet" in pref_text or "animal" in pref_text:
                         pet_friendly = True
                         plan_logs.append("Overriding parameter: 'pet_friendly=True' based on FAISS long-term memory!")
-                    if "budget" in pref_text or "cheap" in pref_text:
+                    if any(w in pref_text for w in ["budget", "cheap", "luxury", "mid-range", "high-end"]):
                         nums = re.findall(r'\$?(\d+)', pref_text)
                         if nums and not budget:
                             budget = float(nums[0])
@@ -476,7 +476,12 @@ INSTRUCTIONS:
             else:
                 prefs.append("The user travels with pets and requires pet-friendly services.")
         if params["budget"]:
-            prefs.append(f"The user prefers a strict budget-conscious trip capped around ${params['budget']:.0f}.")
+            if params["budget"] >= 3000:
+                prefs.append(f"The user prefers a luxury, high-end travel experience with a budget around ${params['budget']:.0f}.")
+            elif params["budget"] >= 1000:
+                prefs.append(f"The user prefers a balanced, mid-range trip with a budget around ${params['budget']:.0f}.")
+            else:
+                prefs.append(f"The user prefers a strict budget-conscious trip capped around ${params['budget']:.0f}.")
         for interest in params["interests"]:
             prefs.append(f"The user is highly interested in {interest} activities during travel.")
         return prefs
@@ -545,6 +550,11 @@ Plan-and-Execute architecture with real-time tool use and multi-hop RAG from Wik
 6. ADAPTIVE SUGGESTIONS
    - If something the user wants is not feasible (budget, pet policy, closed attraction),
      proactively suggest a concrete alternative rather than just saying "not available".
+
+7. STRICTLY OBEY LONG-TERM FAISS MEMORY
+   - Below, you will see a 'LONG-TERM FAISS MEMORY' block containing past traveler preferences.
+   - You MUST adapt your itinerary to strictly adhere to these preferences (e.g., if it says they are vegan, ONLY suggest vegan restaurants; if it says they have a dog, ONLY suggest pet-friendly activities and hotels).
+   - Acknowledge their long-term preferences naturally in the Trip Overview (e.g., "I kept your vegan diet and pet dog in mind while planning...").
 
 === CONVERSATION HISTORY (last 5 turns) ===
 {history_context}
