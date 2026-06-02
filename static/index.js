@@ -72,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     constraintTags.innerHTML = '<span class="empty-msg">No active trip planning constraints detected yet.</span>';
                     planningTimeline.innerHTML = '<li class="timeline-empty">Awaiting user query to formulate plan...</li>';
                     ragHopsLog.innerHTML = '<span class="empty-msg">RAG retrieval logs will appear here.</span>';
+                    if (chatSuggestions) chatSuggestions.classList.remove("hidden");
                 }
             } catch (err) {
                 console.error("Error resetting session:", err);
@@ -199,6 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
         isRequestActive = true;
         chatInput.value = "";
         
+        // Hide suggestions once chat starts
+        if (chatSuggestions) chatSuggestions.classList.add("hidden");
+
         // 1. Append User Message
         appendMessage("user", message);
         
