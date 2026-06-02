@@ -21,11 +21,12 @@ class TravelAgentPlanner:
         if self.api_key:
             try:
                 genai.configure(api_key=self.api_key)
+                genai.get_model("models/gemini-1.5-flash") # Verifies key via network
                 self.model = genai.GenerativeModel("gemini-1.5-flash")
                 self.llm_available = True
                 print("Gemini API successfully configured.")
             except Exception as e:
-                print(f"Gemini API initialization failed: {e}. Falling back to Local simulation.")
+                print(f"Gemini API initialization failed: {e}.")
                 self.llm_available = False
 
     def update_api_key(self, api_key: str):
@@ -34,6 +35,7 @@ class TravelAgentPlanner:
         if api_key:
             try:
                 genai.configure(api_key=api_key)
+                genai.get_model("models/gemini-1.5-flash") # Verifies key via network
                 self.model = genai.GenerativeModel("gemini-1.5-flash")
                 self.llm_available = True
             except Exception as e:
@@ -382,17 +384,23 @@ INSTRUCTIONS:
                 agent_response = response_obj.text
                 plan_logs.append("Gemini response received.")
             except Exception as e:
-                plan_logs.append(f"Gemini generation failed ({e}). Falling back to Local template engine.")
-                agent_response = self._synthesize_local_response(
-                    city, budget, pet_friendly, interests, weather_data,
-                    accommodation_data, attractions_list, rag_result, feasibility
+                plan_logs.append(f"Gemini generation failed: {e}")
+                error_msg = (
+                    f"> **⚠️ Gemini API Error**\n>\n"
+                    f"> I successfully understood your request for {city}, but I encountered a connection or safety error when trying to generate the final itinerary.\n"
+                    f"> *(Error: {str(e)})*\n>\n"
+                    f"> Please check your API key quota, rate limits, or try a different request."
                 )
-        else:
-            plan_logs.append("Running in Local Simulation mode (No API Key). Compiling robust travel guide...")
-            agent_response = self._synthesize_local_response(
-                city, budget, pet_friendly, interests, weather_data,
-                accommodation_data, attractions_list, rag_result, feasibility
-            )
+                self.short_memory.add_message("assistant", error_msg)
+                return {
+                    "response": error_msg,
+                    "planning_steps": plan_logs,
+                    "parameters": extracted,
+                    "preferences_used": [],
+                    "hops_log": rag_result["hops_log"],
+                    "success": False,
+                    "clarification_needed": False
+                }
 
         # 13. Auto-persist new preferences to FAISS
         plan_logs.append("Detecting new user preferences to index in FAISS vector database...")
@@ -427,11 +435,9 @@ INSTRUCTIONS:
     # ──────────────────────────────────────────────────────────────────────────
     def _extract_city_from_history(self) -> str:
         """Scans recent conversation history to find a city mentioned earlier."""
-        history = self.short_memory.get_context()
-        for msg in reversed(history):
-            params = self._extract_parameters(msg["content"])
-            if params["city"]:
-                return params["city"]
+        active = self.short_memory.active_city
+        if active and active != "default":
+            return active.title()
         return None
 
     def _format_history_for_prompt(self) -> str:
@@ -653,7 +659,6 @@ Respond in clean Markdown. Structure:
         md.append(f"### Day 2: Modern Culture & Immersion")
         md.append(f"- **09:00 AM - Morning Activity | {d2_morn['name']}**")
         md.append(f"  - **Cost**: ${d2_morn.get('cost_usd', 0)} | **Duration**: {d2_morn.get('duration_hours', 2)} hours")
-        md.append(f"  - *{d2_morn.get('description', '')}*")
         md.append(f"  - *Tip*: {d2_morn.get('best_time', 'Early visit suggested.')}")
         md.append(f"- **12:00 PM - Lunch**")
         md.append(f"  - Relax at a local street vendor or cafe.")
