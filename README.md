@@ -12,8 +12,7 @@ graph TD
     
     subgraph Agent_Core [Agent Planning & Reasoning]
         Planner[Plan-and-Execute Engine]
-        LLM[Gemini 1.5 Flash Model]
-        LocalFallback[Template-based Compiler]
+        LLM[Gemini 2.5 Flash Model]
     end
     
     subgraph Memory_System [Dual-Layer Memory Manager]
@@ -42,7 +41,6 @@ graph TD
     LTMemory -. Cosine Similarity .-> FAISS_Index[(FAISS Index file)]
     RAGEngine -. Hop 1 & 2 .-> Corpus
     LLM <--> Planner
-    LocalFallback <--> Planner
 ```
 
 ---
@@ -58,7 +56,7 @@ Rather than relying on fragile, multi-turn LLM loops that are prone to latency s
   3. Query the Weather API Tool for dynamic forecast adjustments.
   4. Query the Accommodation Tool to identify budget-matched, pet-friendly hotels.
   5. Query the Attractions Tool for activities matching constraints.
-- **Synthesis**: The aggregated outputs of all sub-tasks are compiled into a comprehensive prompt context and passed to the generator (Google Gemini or the local compiler fallback) to construct a highly unified, customized 2-day markdown itinerary.
+- **Synthesis**: The aggregated outputs of all sub-tasks are compiled into a comprehensive prompt context and passed to the generator (Google Gemini) to construct a highly unified, customized 2-day markdown itinerary.
  
 ### 2. Dual-Layer Memory Management (FAISS Vector Store)
 - **Short-Term Memory (`ShortTermMemory`)**: An in-memory conversation list that maintains structural dialogue context across turns, enabling follow-up questions (e.g., *"What about a cheaper hotel?"*).
@@ -118,15 +116,15 @@ VoyageAgent requires Python 3.10+. The standard library and package system handl
 ### 1. Installation
 Clone or navigate to the project directory and install the required dependencies:
 ```powershell
-pip install fastapi uvicorn faiss-cpu python-dotenv google-generativeai
+pip install fastapi uvicorn faiss-cpu python-dotenv google-genai
 ```
 
-### 2. Configure Google Gemini (Optional but Recommended)
+### 2. Configure Google Gemini
 For unrestricted, fully creative AI generation, create a `.env` file in the root directory:
 ```env
 GEMINI_API_KEY=your_actual_gemini_api_key_here
 ```
-*Note: If no key is set, the application automatically runs in a fully functional Local Simulation Mode, executing all FAISS vector searches, RAG lookups, and tools, compiling a detailed, high-fidelity markdown itinerary using structured template synthesizers.*
+*Note: A valid API key is required to query the Gemini endpoints and perform dynamic extractions.*
 
 ### 3. Run the Server
 Launch the FastAPI server:

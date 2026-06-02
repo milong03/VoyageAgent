@@ -46,7 +46,7 @@ VoyageAgent exposes a complete REST API alongside an interactive single-page das
 * **`POST /api/preferences`**: Manually indexes a travel preference inside the FAISS database.
 * **`DELETE /api/preferences/{index}`**: Deletes a specific indexed preference card and rebuilds the FAISS database on-the-fly.
 * **`POST /api/config`**: Dynamically updates the Google Gemini API key at runtime.
-* **`GET /api/config`**: Inspects active backend configurations (Gemini Active Mode vs. Local Simulation Mode).
+* **`GET /api/config`**: Inspects active backend configurations (Gemini API status).
 * **`POST /api/clear`**: Wipes conversational short-term history or clears the FAISS binary index.
 
 > **Swagger Playground**: Try the endpoints in real-time under the auto-generated Swagger UI at `/docs` (e.g. `http://127.0.0.1:8000/docs`).
@@ -95,7 +95,7 @@ VoyageAgent coordinates memory, RAG, and tools through a centralized **Plan-and-
                        v       v       v       v
                   +----------------------------------+
                   |     Plan Synthesis & Rendering   |
-                  |    (Gemini 1.5 or Local Template)|
+                  |          (Gemini 2.5)            |
                   +----------------------------------+
                                    |
                                    v
@@ -142,9 +142,7 @@ Allows the agent to remember traveler profiles across multiple sessions and rebo
 
 For deep and nuanced travel suggestions, VoyageAgent bypasses simple search queries in favor of a **Two-Stage Multi-Hop RAG**:
 
-* **Hop 1 (Primary Retrieval)**: The agent searches the primary attraction database for matching spots based on city and interest keywords.
-* **Hop 2 (Secondary Retrieval)**: It parses the text from Hop 1 to extract sub-entities and hidden terms (e.g., identifying *Nakamise-dori* inside a *Senso-ji* result, or *Tanjong Beach* inside a *Sentosa* result). It then launches a secondary query against our **Travel Blog and Wikipedia dump corpus** to extract specific local tips and etiquette guidelines:
-  * **Tokyo**: Nakamise-dori walking food rules (Ningyo-yaki, kibi-dango) and dog train ticket laws.
-  * **Paris**: Coffee prices (terrace vs. bar pricing) and dog seating permissions at cafes.
-  * **Singapore**: Hawker complex "Chope" seat-reserving etiquette and Sentosa beach club rules.
+* **Hop 1 (Primary Retrieval)**: The agent connects to the live Wikipedia API to fetch summaries of the top articles matching the target city and user's interests. If Wikipedia is unreachable, it seamlessly falls back to querying a local corpus of JSON travel blogs.
+* **Hop 2 (Secondary Entity Expansion)**: It parses the raw text retrieved from Hop 1 using a regex entity extractor to identify hidden proper nouns and landmarks (e.g., extracting *Nakamise-dori* from an article about *Senso-ji*, or *Tanjong Beach* from *Sentosa*). It then triggers a secondary, automated Wikipedia API search for each extracted sub-entity to gather profound, highly specific local context.
+* **Synthesis**: It bundles the broad city context (Hop 1) and the deep landmark context (Hop 2) together, injecting both layers into the final LLM prompt.
 * **RAG Logs**: Captured hops are printed cleanly on the timeline, ensuring transparent agent reasoning traces.
