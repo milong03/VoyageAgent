@@ -364,6 +364,11 @@ INSTRUCTIONS:
         attractions_list = self.tools.search_attractions(city, budget_usd=max_attr_budget, tags=interests, pet_friendly=pet_friendly)
         plan_logs.append(f"Attractions tool response: {[a['name'] for a in attractions_list]}")
 
+        # 11b. Sub-task 4b: Currency
+        plan_logs.append("Sub-task 4b: Fetching live global exchange rates...")
+        currency_data = self.tools.get_currency_exchange(base_currency="USD")
+        plan_logs.append("Currency tool response: Exchange rates retrieved.")
+
         # 12. Sub-task 5: Synthesize plan
         plan_logs.append("Sub-task 5: Synthesizing plan using LLM model...")
         history_context = self._format_history_for_prompt()
@@ -378,6 +383,7 @@ INSTRUCTIONS:
                 weather=weather_data,
                 accommodation=accommodation_data,
                 attractions=attractions_list,
+                currency=currency_data,
                 rag_context=rag_result["context"],
                 preferences=[p["preference"] for p in matching_prefs],
                 feasibility=feasibility,
@@ -476,7 +482,7 @@ INSTRUCTIONS:
         return prefs
 
     def _compile_llm_prompt(self, query, city, budget, pet_friendly, interests,
-                            weather, accommodation, attractions, rag_context,
+                            weather, accommodation, attractions, currency, rag_context,
                             preferences, feasibility, history_context) -> str:
         """Compiles the full context-aware prompt to send to Gemini."""
 
@@ -487,6 +493,14 @@ INSTRUCTIONS:
 {feasibility['warning']}
 Minimum viable budget for {city}: ${feasibility['min_viable_budget']}
 Recommended comfortable budget: ${feasibility['recommended_budget']}
+"""
+
+        currency_block = ""
+        if currency and "rates" in currency:
+            currency_block = f"""
+--- LIVE CURRENCY EXCHANGE RATES (Base: {currency.get('base_currency')}) ---
+{json.dumps(currency['rates'], indent=2)}
+Please use these rates to convert budget estimations into local currency where appropriate.
 """
 
         return f"""
@@ -544,6 +558,8 @@ Budget: ${budget if budget else "Not specified"}
 Pet-Friendly: {pet_friendly}
 Interests: {interests if interests else "Not specified"}
 {budget_warning_block}
+{currency_block}
+
 === LONG-TERM FAISS MEMORY (past preferences) ===
 {json.dumps(preferences, indent=2) if preferences else "No past preferences on file."}
 

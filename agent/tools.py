@@ -1,5 +1,7 @@
 import os
 import json
+import urllib.request
+import urllib.parse
 
 class TravelTools:
     """Implements tools that the travel agent can execute to collect real-time data."""
@@ -16,30 +18,63 @@ class TravelTools:
             self.db = {"cities": {}}
 
     def get_weather(self, city: str) -> dict:
-        """Gets weather forecast for a target city."""
-        city_key = city.strip().lower()
-        cities = self.db.get("cities", {})
-        
-        if city_key not in cities:
-            # Fallback for unrecognized cities
+        """Gets live weather forecast for a target city using Open-Meteo (No API Key)."""
+        try:
+            # Step 1: Geocoding (City name to Lat/Lon)
+            geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={urllib.parse.quote(city)}&count=1&format=json"
+            req = urllib.request.Request(geo_url, headers={'User-Agent': 'VoyageAgent/1.0'})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                geo_data = json.loads(resp.read().decode())
+                
+            if not geo_data.get("results"):
+                return {"error": f"Could not find coordinates for city: {city}"}
+                
+            lat = geo_data["results"][0]["latitude"]
+            lon = geo_data["results"][0]["longitude"]
+            resolved_city = geo_data["results"][0].get("name", city)
+
+            # Step 2: Fetch Weather
+            weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,precipitation,weather_code"
+            req = urllib.request.Request(weather_url, headers={'User-Agent': 'VoyageAgent/1.0'})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                weather_data = json.loads(resp.read().decode())
+                current = weather_data.get("current", {})
+                
             return {
-                "error": f"City '{city}' not found in attraction database. Standard forecast: Mostly sunny, 22°C.",
+                "city": resolved_city,
+                "summary": f"Live Weather Code {current.get('weather_code', 'Unknown')}",
+                "avg_temp_c": current.get("temperature_2m", 22),
+                "chance_of_rain": f"{current.get('precipitation', 0)}mm precipitation",
+                "humidity": "N/A" # Current endpoint doesn't strictly give humidity without extra params
+            }
+        except Exception as e:
+            return {
+                "error": f"Live weather API failed ({str(e)}). Standard forecast: Mostly sunny, 22°C.",
                 "city": city,
                 "summary": "Mostly sunny with a pleasant breeze.",
                 "avg_temp_c": 22,
-                "humidity": "50%",
                 "chance_of_rain": "10%"
             }
-            
-        city_data = cities[city_key]
-        weather = city_data.get("weather_forecast", {})
-        return {
-            "city": city_data.get("name"),
-            "summary": weather.get("summary"),
-            "avg_temp_c": weather.get("avg_temp_c"),
-            "humidity": weather.get("humidity"),
-            "chance_of_rain": weather.get("chance_of_rain")
-        }
+
+    def get_currency_exchange(self, base_currency: str = "USD") -> dict:
+        """Fetches live global exchange rates using ExchangeRate-API (No API Key)."""
+        url = f"https://open.er-api.com/v6/latest/{base_currency}"
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'VoyageAgent/1.0'})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read().decode())
+                return {
+                    "base_currency": base_currency,
+                    "rates": {
+                        "EUR": data["rates"].get("EUR", 0.9),
+                        "JPY": data["rates"].get("JPY", 150.0),
+                        "SGD": data["rates"].get("SGD", 1.35),
+                        "GBP": data["rates"].get("GBP", 0.8),
+                        "CNY": data["rates"].get("CNY", 7.2)
+                    }
+                }
+        except Exception as e:
+            return {"error": f"Currency API failed: {e}", "rates": {}}
 
     def search_attractions(self, city: str, budget_usd: float = None, tags: list = None, pet_friendly: bool = False) -> list:
         """Filters attractions based on location, budget, categories, and pet friendliness."""
