@@ -63,8 +63,8 @@ USER MESSAGE:
 
 Extract the following as a JSON object:
 - "intent": one of ["plan_trip", "budget_advice", "follow_up", "general_advice"]
-- "city": The specific destination city. If they mention a country but no city, leave city as null.
-- "origin": The city the user is departing from. Leave as null if not mentioned anywhere in the prompt or history.
+- "city": The specific destination city. If the assistant just asked for the departure/origin city, do NOT map the user's answer to this field! Retain the destination from history.
+- "origin": The city the user is departing from. If the assistant just asked "which city will you be flying out of?" and the user replies with a city name, map it to "origin", NOT "city".
 - "country": The country mentioned, if any.
 - "budget": Numeric maximum budget in USD, or null if none.
 - "pet_friendly": boolean (true/false)
