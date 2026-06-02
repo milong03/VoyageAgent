@@ -79,7 +79,19 @@ Respond ONLY with valid JSON matching this schema.
                 contents=prompt,
                 config=types.GenerateContentConfig(response_mime_type="application/json")
             )
-            return json.loads(response.text)
+            extracted = json.loads(response.text)
+            
+            # Hardcoded deterministic override to fix LLM JSON mapping biases
+            history = self.short_memory.get_context()
+            if history:
+                last_msg = history[-1].get("content", "").lower()
+                if "flying out of" in last_msg or "departure" in last_msg:
+                    # The LLM often stubbornly maps single-word cities to "city" even if we asked for origin
+                    if extracted.get("city") and not extracted.get("origin"):
+                        extracted["origin"] = extracted["city"]
+                        extracted["city"] = None
+                        
+            return extracted
         except Exception as e:
             raise RuntimeError(f"Gemini pre-processing failed: {e}")
 
