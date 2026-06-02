@@ -1,0 +1,277 @@
+{
+  "cities": {
+    "tokyo": {
+      "name": "Tokyo",
+      "country": "Japan",
+      "currency": "JPY",
+      "exchange_rate_to_usd": 0.0065,
+      "weather_forecast": {
+        "summary": "Mild temperatures with moderate sunshine, perfect for sightseeing. Bring a light jacket for evenings.",
+        "avg_temp_c": 18,
+        "humidity": "60%",
+        "chance_of_rain": "15%"
+      },
+      "attractions": [
+        {
+          "id": "tokyo_sensoji",
+          "name": "Senso-ji Temple",
+          "description": "Tokyo's oldest and most iconic Buddhist temple, located in Asakusa.",
+          "cost_usd": 0,
+          "duration_hours": 2,
+          "tags": ["culture", "historical", "budget", "outdoor", "pet-friendly"],
+          "best_time": "Early morning or dusk to avoid crowds",
+          "rag_details": "Senso-ji was founded in 645 AD, making it Tokyo's oldest temple. It was built to honor the Bodhisattva Kannon, the goddess of mercy, whose statue was allegedly fished out of the Sumida River by two brothers. The Nakamise-dori leading up to the temple has been a shopping street for centuries, selling traditional snacks like senbei (rice crackers) and ningyo-yaki (small sponge cakes with red bean filling). The temple grounds are open 24/7 and are pet-friendly, meaning you can walk your leashed dog in the outer courtyard, though pets are not allowed inside the main worship hall."
+        },
+        {
+          "id": "tokyo_shibuya",
+          "name": "Shibuya Crossing & Hachiko",
+          "description": "The world's busiest pedestrian intersection, a symbol of modern Tokyo.",
+          "cost_usd": 0,
+          "duration_hours": 1,
+          "tags": ["modern", "urban", "budget", "outdoor", "pet-friendly"],
+          "best_time": "Evening when neon lights are vibrant",
+          "rag_details": "Shibuya Crossing is crossed by up to 3,000 people at a single green light. Beside the station sits the bronze statue of Hachiko, the loyal Akita dog who waited there daily for his owner even after the owner's passing. The area surrounding Hachiko is a popular meeting spot and is highly pet-friendly for walking. For a bird's-eye view, the Shibuya Sky observatory nearby offers stunning 360-degree panoramas, though it has an admission fee."
+        },
+        {
+          "id": "tokyo_akihabara",
+          "name": "Akihabara Electric Town",
+          "description": "The global hub of anime, gaming, electronics, and otaku culture.",
+          "cost_usd": 15,
+          "duration_hours": 3,
+          "tags": ["modern", "anime", "gaming", "shopping", "indoor"],
+          "best_time": "Afternoon when retro gaming shops and maid cafes are fully open",
+          "rag_details": "Akihabara post-WWII was a black market for radio parts. Today, it hosts multi-story arcades like Sega (now GiGO) and retro-gaming havens like Super Potato. For anime fans, Mandarake and Animate contain endless merchandise. Many cafes and stores require indoor entry, which generally makes them not pet-friendly, but walking along Chuo-dori on Sundays when it's closed to vehicle traffic is a fantastic outdoor experience."
+        },
+        {
+          "id": "tokyo_shinjuku_gyoen",
+          "name": "Shinjuku Gyoen National Garden",
+          "description": "A massive, beautiful park blending traditional Japanese, English, and French gardens.",
+          "cost_usd": 3.5,
+          "duration_hours": 2,
+          "tags": ["nature", "historical", "budget", "outdoor"],
+          "best_time": "Spring (cherry blossoms) or Autumn (maple foliage)",
+          "rag_details": "Shinjuku Gyoen originally belonged to the Naito family, lords of the Edo period, before becoming an imperial garden in 1906 and a national park in 1949. It houses more than 20,000 trees, including 1,500 cherry trees. The greenhouse showcases tropical plants. Note: Pets are strictly prohibited in Shinjuku Gyoen to preserve the delicate plant life and local bird species. Alcohol is also banned, making it a peaceful, family-friendly sanctuary."
+        },
+        {
+          "id": "tokyo_ghibli",
+          "name": "Ghibli Museum",
+          "description": "The magical museum showcasing the animation art of Hayao Miyazaki and Studio Ghibli.",
+          "cost_usd": 8,
+          "duration_hours": 3,
+          "tags": ["culture", "anime", "kids", "indoor"],
+          "best_time": "Requires booking months in advance",
+          "rag_details": "Located in Mitaka, the Ghibli Museum was designed by Miyazaki himself to be a 'portal to a storybook world.' It features a rooftop garden with a life-sized statue of the robot from Castle in the Sky, an exclusive theater showing short films, and a child-sized Catbus. It is highly sought after by anime fans. Pets are not allowed. Photography is banned inside the museum to encourage visitors to experience the space with their own eyes rather than a lens."
+        },
+        {
+          "id": "tokyo_teamlab",
+          "name": "teamLab Planets TOKYO",
+          "description": "An immersive digital art museum where visitors walk through water and touch floating projections.",
+          "cost_usd": 28,
+          "duration_hours": 2.5,
+          "tags": ["modern", "art", "indoor", "kids"],
+          "best_time": "Weekday mornings to minimize queues",
+          "rag_details": "teamLab Planets is a sensory museum where you must remove your shoes and walk barefoot through various installations. Key rooms include the Infinite Crystal Universe and the Floating Flower Garden containing over 13,000 living orchids. Due to the water and sensory nature, pets are not allowed, and some exhibits have mirrored floors, so wear appropriate attire. Booking online in advance is essential."
+        }
+      ],
+      "hotels": [
+        {
+          "name": "Hotel Gracery Shinjuku",
+          "rating": 4.5,
+          "price_per_night_usd": 140,
+          "tags": ["modern", "mid-range", "godzilla"],
+          "description": "Famous hotel topped by a giant, life-sized Godzilla head, located in the heart of Shinjuku's nightlife district."
+        },
+        {
+          "name": "Shibuya Stream Excel Hotel Tokyu",
+          "rating": 4.7,
+          "price_per_night_usd": 220,
+          "tags": ["luxury", "modern", "design"],
+          "description": "A stylish, upscale lifestyle hotel situated right beside the Shibuya River with great city views."
+        },
+        {
+          "name": "Candeo Hotels Tokyo Shimbashi",
+          "rating": 4.3,
+          "price_per_night_usd": 110,
+          "tags": ["budget", "mid-range", "onsen"],
+          "description": "Affordable hotel featuring a premium rooftop sky-spa with outdoor baths (onsen) and saunas."
+        },
+        {
+          "name": "Mimaru Tokyo Station East",
+          "rating": 4.6,
+          "price_per_night_usd": 180,
+          "tags": ["family-friendly", "apartment", "pet-friendly"],
+          "description": "Apartment-style hotel with fully equipped kitchens. Features dedicated pet-friendly rooms equipped with dog beds, food bowls, and walking supplies."
+        }
+      ],
+      "flights": {
+        "north_america": {"price_usd": 900, "duration_hours": 12},
+        "europe": {"price_usd": 1050, "duration_hours": 14},
+        "asia_pacific": {"price_usd": 450, "duration_hours": 6}
+      }
+    },
+    "paris": {
+      "name": "Paris",
+      "country": "France",
+      "currency": "EUR",
+      "exchange_rate_to_usd": 1.08,
+      "weather_forecast": {
+        "summary": "Light showers expected in the afternoon. A perfect excuse to visit cozy cafes and indoor galleries. Carry an umbrella.",
+        "avg_temp_c": 14,
+        "humidity": "75%",
+        "chance_of_rain": "60%"
+      },
+      "attractions": [
+        {
+          "id": "paris_eiffel",
+          "name": "Eiffel Tower & Champ de Mars",
+          "description": "The absolute symbol of Paris, offering stunning panoramas of the City of Light.",
+          "cost_usd": 22,
+          "duration_hours": 2,
+          "tags": ["culture", "historical", "outdoor", "pet-friendly"],
+          "best_time": "Sunset to see the golden hour and evening sparkles",
+          "rag_details": "Completed in 1889 for the World's Fair, Gustave Eiffel's tower was initially hated by Parisian artists. Today, it stands as the most visited paid monument in the world. While you cannot bring pets up the elevator or stairs of the tower itself, the massive Champ de Mars park surrounding the Eiffel Tower is a popular spot for picnics and is fully pet-friendly, allowing dogs on leash to stroll under the iron legs."
+        },
+        {
+          "id": "paris_louvre",
+          "name": "The Louvre Museum",
+          "description": "The world's largest art museum, home to the Mona Lisa and Venus de Milo.",
+          "cost_usd": 24,
+          "duration_hours": 4,
+          "tags": ["art", "historical", "indoor"],
+          "best_time": "Wednesday or Friday evening when it stays open late and has fewer visitors",
+          "rag_details": "Housed in the Louvre Palace (originally a 12th-century fortress), this gargantuan museum contains over 380,000 objects and displays 35,000 works of art across 8 departments. The iconic glass pyramid in the courtyard was designed by I.M. Pei. Walking around the outdoor courtyard is free and pet-friendly, but only service dogs are permitted inside the galleries. Booking a timed entry ticket online is highly recommended."
+        },
+        {
+          "id": "paris_montmartre",
+          "name": "Montmartre & Sacre-Coeur",
+          "description": "The historic, artistic hilltop neighborhood featuring cobblestone streets and a white Basilica.",
+          "cost_usd": 0,
+          "duration_hours": 2.5,
+          "tags": ["culture", "historical", "budget", "outdoor", "pet-friendly"],
+          "best_time": "Morning to explore the winding lanes before crowds arrive",
+          "rag_details": "Montmartre was the playground of famous artists like Picasso, Van Gogh, and Toulouse-Lautrec in the late 19th century. Place du Tertre is still filled with local portrait painters. The Sacre-Coeur Basilica at the summit provides magnificent views. While the basilica interior does not allow pets, the winding streets, open-air plazas, and steps of Montmartre are extremely pet-friendly, and Parisian cafes in the area often welcome dogs at outdoor terrace tables."
+        },
+        {
+          "id": "paris_seine_cruise",
+          "name": "Seine River Cruise",
+          "description": "A relaxing boat ride along the Seine to view historic bridges and monuments.",
+          "cost_usd": 18,
+          "duration_hours": 1.5,
+          "tags": ["sightseeing", "relaxing", "outdoor", "kids"],
+          "best_time": "Nighttime when all monuments along the river are illuminated",
+          "rag_details": "Cruising down the Seine lets you see Notre-Dame, the Musee d'Orsay, and the Eiffel Tower from a unique angle. The commentary narrates the 2,000-year history of Paris. Some cruise companies, like Vedettes du Pont Neuf, allow small lap-dogs on board if held, making it a potentially pet-friendly sightseeing option, though larger dogs may be restricted. Tickets are usually cheaper if bought online in advance."
+        }
+      ],
+      "hotels": [
+        {
+          "name": "Generator Hostel Paris",
+          "rating": 4.1,
+          "price_per_night_usd": 45,
+          "tags": ["budget", "youth", "rooftop"],
+          "description": "Very stylish hostel in the 10th Arrondissement featuring a rooftop bar with views of Sacre-Coeur."
+        },
+        {
+          "name": "Les Jardins du Faubourg Hotel & Spa",
+          "rating": 4.8,
+          "price_per_night_usd": 350,
+          "tags": ["luxury", "spa", "pet-friendly"],
+          "description": "Ultra-luxurious boutique hotel near Champs-Elysees that treats pets like royalty, offering gourmet pet menus and custom beds."
+        },
+        {
+          "name": "Hotel Kette",
+          "rating": 4.4,
+          "price_per_night_usd": 130,
+          "tags": ["mid-range", "charming", "historic"],
+          "description": "Charming hotel in the Latin Quarter reflecting traditional Parisian decor with exposed beams and cozy reading nooks."
+        }
+      ],
+      "flights": {
+        "north_america": {"price_usd": 750, "duration_hours": 8},
+        "europe": {"price_usd": 120, "duration_hours": 2},
+        "asia_pacific": {"price_usd": 950, "duration_hours": 13}
+      }
+    },
+    "singapore": {
+      "name": "Singapore",
+      "country": "Singapore",
+      "currency": "SGD",
+      "exchange_rate_to_usd": 0.74,
+      "weather_forecast": {
+        "summary": "Tropical heat with a high index of humidity. Brief afternoon thundershowers are common; carry a pocket umbrella and stay hydrated.",
+        "avg_temp_c": 29,
+        "humidity": "85%",
+        "chance_of_rain": "45%"
+      },
+      "attractions": [
+        {
+          "id": "sg_gardens",
+          "name": "Gardens by the Bay",
+          "description": "A futuristic nature park featuring massive Supertrees and state-of-the-art cooled conservatories.",
+          "cost_usd": 22,
+          "duration_hours": 3,
+          "tags": ["nature", "modern", "outdoor", "kids", "pet-friendly"],
+          "best_time": "7:30 PM to catch the Garden Rhapsody light and sound show",
+          "rag_details": "Spanning 101 hectares, Gardens by the Bay is a national icon. The Flower Dome is the world's largest glass greenhouse, while the Cloud Forest houses a 35-meter indoor waterfall. The outdoor gardens (Super Tree Grove, Heritage Gardens) are completely free to enter and are highly pet-friendly. Many locals walk their dogs here. However, pets are not allowed inside the indoor ticketed conservatories (Flower Dome, Cloud Forest) or on the OCBC Skyway."
+        },
+        {
+          "id": "sg_marina_bay",
+          "name": "Marina Bay Sands & Merlion Park",
+          "description": "The architectural marvel hotel and the legendary half-lion, half-fish national monument.",
+          "cost_usd": 0,
+          "duration_hours": 1.5,
+          "tags": ["modern", "sightseeing", "budget", "outdoor", "pet-friendly"],
+          "best_time": "Late afternoon to capture both daytime and nighttime skyline photos",
+          "rag_details": "The Merlion statue represents Singapore's humble origins as a fishing village (Temasek) and its original name (Singapura - Lion City). The broad boardwalk wrapping around Marina Bay offers a breathtaking urban walk. It is entirely outdoor and pet-friendly, making it a favorite route for joggers and dog owners. You can also view the Spectra light and water show from the deck, which runs nightly."
+        },
+        {
+          "id": "sg_chinatown",
+          "name": "Chinatown & Buddha Tooth Relic Temple",
+          "description": "A colorful mix of old and new, featuring historic shophouses, street food, and rich religious sites.",
+          "cost_usd": 0,
+          "duration_hours": 2,
+          "tags": ["culture", "historical", "budget", "outdoor"],
+          "best_time": "Lunchtime to enjoy street food at Chinatown Complex Hawker Centre",
+          "rag_details": "Chinatown is a vibrant cultural enclave where the Buddha Tooth Relic Temple, Sri Mariamman Hindu Temple, and Jamae Mosque sit on the same street, reflecting Singapore's multi-racial harmony. The Buddha Tooth Relic Temple features traditional Tang Dynasty architecture. Pets are not allowed inside the temples, but the pedestrianized streets (Pagoda Street, Trengganu Street) are outdoor and friendly for walks."
+        },
+        {
+          "id": "sg_sentosa",
+          "name": "Sentosa Island & Tanjong Beach",
+          "description": "Singapore's premier resort island with theme parks, cable cars, and sandy beaches.",
+          "cost_usd": 10,
+          "duration_hours": 4,
+          "tags": ["outdoor", "relaxing", "kids", "pet-friendly"],
+          "best_time": "Weekend mornings for beach activities and sunny weather",
+          "rag_details": "Sentosa is home to Universal Studios Singapore, S.E.A. Aquarium, and sandy coastal stretches. Sentosa is exceptionally pet-friendly: dogs are allowed on the beaches (Tanjong, Palawan, Siloso), and several beach clubs (like Tanjong Beach Club) welcome dogs to sit with their owners on daybeds. Sentosa Express monorail and cable cars do have restrictions, but pets can travel in private cars or pet-friendly taxis."
+        }
+      ],
+      "hotels": [
+        {
+          "name": "Marina Bay Sands",
+          "rating": 4.9,
+          "price_per_night_usd": 650,
+          "tags": ["luxury", "iconic", "infinity-pool"],
+          "description": "The ultimate luxury stay boasting the world's largest and most famous rooftop infinity pool, available exclusively to guests."
+        },
+        {
+          "name": "Lloyd's Inn",
+          "rating": 4.3,
+          "price_per_night_usd": 120,
+          "tags": ["mid-range", "minimalist", "nature"],
+          "description": "A beautiful minimalist boutique hotel near Orchard Road, offering tranquil, garden-facing rooms."
+        },
+        {
+          "name": "Capella Singapore",
+          "rating": 4.9,
+          "price_per_night_usd": 550,
+          "tags": ["luxury", "pet-friendly", "resort"],
+          "description": "A stunning, ultra-premium resort on Sentosa Island. Highly pet-friendly; they offer a 'Pet Spa-cation' package including custom menus and gourmet treats for your dog."
+        }
+      ],
+      "flights": {
+        "north_america": {"price_usd": 1100, "duration_hours": 16},
+        "europe": {"price_usd": 850, "duration_hours": 12},
+        "asia_pacific": {"price_usd": 250, "duration_hours": 4}
+      }
+    }
+  }
+}

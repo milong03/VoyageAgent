@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoyageAgent - Intelligent Travel AI Agent</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-plane-departure logo-icon"></i>
+                <div class="logo-text">
+                    <h1>VoyageAgent</h1>
+                    <span>Intelligent Travel AI Agent</span>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <div id="api-status" class="api-status-badge mode-simulated">
+                    <span class="pulse-dot"></span>
+                    <span id="api-status-text">🔌 Local Simulation Mode</span>
+                </div>
+                <button id="btn-settings" class="btn-icon-label" title="Configure Agent API Keys">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT GRID -->
+        <main class="app-main-grid">
+            
+            <!-- LEFT PANEL: AGENT REASONING TRACE -->
+            <section class="panel panel-left card-glass">
+                <div class="panel-header">
+                    <i class="fa-solid fa-brain header-icon"></i>
+                    <h2>Agent Reasoning Trace</h2>
+                </div>
+                <div class="panel-content">
+                    
+                    <!-- Constraint Tag Box -->
+                    <div class="trace-section">
+                        <h3><i class="fa-solid fa-filter"></i> Detected Constraints</h3>
+                        <div id="constraint-tags" class="tag-box">
+                            <span class="empty-msg">No active trip planning constraints detected yet.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Planning Steps Log -->
+                    <div class="trace-section">
+                        <h3><i class="fa-solid fa-route"></i> Plan-and-Execute Tasks</h3>
+                        <div class="planning-timeline-container">
+                            <ul id="planning-timeline" class="planning-timeline">
+                                <li class="timeline-empty">Awaiting user query to formulate plan...</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Hop RAG Log -->
+                    <div class="trace-section">
+                        <h3><i class="fa-solid fa-magnifying-glass-location"></i> Multi-Hop RAG Hops</h3>
+                        <div id="rag-hops-log" class="rag-hops-log">
+                            <span class="empty-msg">RAG retrieval logs will appear here.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MIDDLE PANEL: CONVERSATIONAL INTERFACE -->
+            <section class="panel panel-chat card-glass">
+                <div class="chat-header">
+                    <div class="chat-title-info">
+                        <i class="fa-solid fa-comments chat-icon"></i>
+                        <h2>Travel Assistant</h2>
+                    </div>
+                    <button id="btn-reset-session" class="btn-text-icon" title="Reset Short-term session memory">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Reset Chat</span>
+                    </button>
+                </div>
+                
+                <!-- Chat Messages Screen -->
+                <div id="chat-messages" class="chat-messages">
+                    <div class="message assistant-message message-initial">
+                        <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                        <div class="message-content">
+                            <p>Hello! I am your **VoyageAgent** travel planning assistant. ✈️</p>
+                            <p>I can plan a highly personalized **2-day itinerary** for you to any major city (like **Tokyo, Paris, or Singapore**). I will query live weather forecasts, find hotels matching your budget, adapt to pet-friendly requirements, and look up deep local cultural insights using multi-hop RAG!</p>
+                            <p>Where would you like to travel, and what are your preferences? (e.g. budget, interests, pets?)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Suggestions Box -->
+                <div id="chat-suggestions" class="chat-suggestions">
+                    <button class="suggest-btn" data-prompt="Plan a 2-day trip to Tokyo with $800 budget. I travel with my dog and love anime.">
+                        🇯🇵 Tokyo Anime & Dog
+                    </button>
+                    <button class="suggest-btn" data-prompt="Romantic 2-day weekend in Paris on $500 budget. Interested in art, cafes, and historic sites.">
+                        🇫🇷 Romantic Paris Art
+                    </button>
+                    <button class="suggest-btn" data-prompt="Plan a 2-day trip to Singapore. I love nature, gardens, and want budget hawker food.">
+                        🇸🇬 Singapore Green Tour
+                    </button>
+                </div>
+
+                <!-- Typing indicator -->
+                <div id="typing-indicator" class="typing-indicator-wrapper hidden">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="typing-text">Agent is reasoning and planning...</span>
+                </div>
+
+                <!-- Chat Input area -->
+                <div class="chat-input-container">
+                    <textarea id="chat-input" placeholder="Plan a 2-day trip to Tokyo... (Press Enter to send)" rows="1"></textarea>
+                    <button id="btn-send-chat" class="btn-primary" title="Send message to agent">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: FAISS LONG-TERM MEMORY -->
+            <section class="panel panel-right card-glass">
+                <div class="panel-header">
+                    <i class="fa-solid fa-database header-icon"></i>
+                    <h2>FAISS Long-Term Memory</h2>
+                </div>
+                <div class="panel-content">
+                    <div class="memory-explanation">
+                        <p>This panel showcases our **FAISS vector database**. When you chat, the agent automatically indexes your preferences. These persist across sessions to guide future plans!</p>
+                    </div>
+
+                    <!-- Add Manual Preference Form -->
+                    <div class="memory-section">
+                        <h3><i class="fa-solid fa-circle-plus"></i> Inject Memory Preference</h3>
+                        <div class="add-memory-form">
+                            <input type="text" id="input-new-preference" placeholder="e.g. I travel with a dog and love green parks.">
+                            <button id="btn-add-preference" class="btn-secondary">
+                                <i class="fa-solid fa-plus"></i> Add to FAISS
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Memory List -->
+                    <div class="memory-section">
+                        <h3><i class="fa-solid fa-list-check"></i> Indexed Preferences (FAISS DB)</h3>
+                        <div id="preferences-list-container" class="preferences-list-container">
+                            <ul id="preferences-list" class="preferences-list">
+                                <li class="pref-empty">No preferences stored in long-term memory yet.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Reset Memory Controls -->
+                    <button id="btn-wipe-memory" class="btn-danger btn-full-width" title="Wipe out FAISS long-term database">
+                        <i class="fa-solid fa-trash-can"></i> WIPE LONG-TERM MEMORY
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- SETTINGS MODAL -->
+        <div id="settings-modal" class="modal-overlay hidden">
+            <div class="modal card-glass">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-gear"></i> Agent Settings</h2>
+                    <button id="btn-close-settings" class="modal-close-btn">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="form-group">
+                        <label for="gemini-key-input">Google Gemini API Key</label>
+                        <input type="password" id="gemini-key-input" placeholder="AIzaSy...">
+                        <span class="help-text">Enter your Google Generative AI API key. The agent will dynamically unlock full LLM reasoning capabilities using Gemini 1.5 Flash. Leaving it blank uses high-fidelity local templates.</span>
+                    </div>
+                    <div id="key-validation-msg" class="validation-msg hidden"></div>
+                    <button id="btn-save-settings" class="btn-primary btn-full-width">Save Settings & Update Agent</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MarkDown-it library for rendering agent markdown responses in chat -->
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="/static/index.js"></script>
+</body>
+</html>
