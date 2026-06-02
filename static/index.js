@@ -332,7 +332,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch and sync FAISS preferences list
     async function fetchPreferences() {
         try {
-            const res = await fetch("/api/preferences");
+            // Append cache-busting timestamp to prevent browsers from caching the deleted preferences
+            const res = await fetch(`/api/preferences?t=${new Date().getTime()}`, {
+                headers: { 'Cache-Control': 'no-cache' }
+            });
             if (res.ok) {
                 const prefs = await res.json();
                 preferencesList.innerHTML = "";
