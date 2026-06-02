@@ -26,9 +26,10 @@ graph TD
     end
     
     subgraph Tool_Suite [Dynamic Tool Suite]
-        WeatherTool[Weather API Tool]
-        HotelTool[Accommodation & Flights Tool]
-        AttrTool[Attractions Search Tool]
+        WeatherTool[Live Weather API Tool]
+        CurrencyTool[Live Currency Exchange Tool]
+        HotelTool[Accommodation & Flights DB]
+        AttrTool[Attractions Search DB]
     end
  
     AppServer <--> Planner
@@ -53,9 +54,10 @@ Rather than relying on fragile, multi-turn LLM loops that are prone to latency s
 - **Goal Deconstruction**: The planner decomposes the travel goal into 5 strict sub-tasks:
   1. Retrieve past preferences from FAISS Long-Term Memory.
   2. Perform Multi-Hop RAG for deep local guides and cultural rules.
-  3. Query the Weather API Tool for dynamic forecast adjustments.
-  4. Query the Accommodation Tool to identify budget-matched, pet-friendly hotels.
-  5. Query the Attractions Tool for activities matching constraints.
+  3. Query the Live Weather API (Open-Meteo) for dynamic forecast adjustments.
+  4. Query the Live Currency API (ExchangeRate-API) to map global budgets accurately.
+  5. Query the Accommodation Tool to identify budget-matched, pet-friendly hotels.
+  6. Query the Attractions Tool for activities matching constraints.
 - **Synthesis**: The aggregated outputs of all sub-tasks are compiled into a comprehensive prompt context and passed to the generator (Google Gemini) to construct a highly unified, customized 2-day markdown itinerary.
  
 ### 2. Dual-Layer Memory Management (FAISS Vector Store)
@@ -72,9 +74,10 @@ Rather than relying on fragile, multi-turn LLM loops that are prone to latency s
 - Combines results from both hops to inject valuable cultural tips (such as *sushi-eating etiquette in Japan* or *Singapore hawker table reservation rules*) into the itinerary.
  
 ### 4. Dynamic Tool Suite
-- **Weather Forecast Tool**: Simulates seasonal parameters to adapt activities to sunny or rainy conditions.
-- **Accommodation & Flights Tool**: Calculates lodging costs (allocating 40% of the target budget) and queries flight estimates from different global regions.
-- **Attractions & Food Tool**: Performs multi-factor query filtering on tourism spots based on budget, interest tags, and pet-friendliness.
+- **Live Weather API (Open-Meteo)**: Dynamically geocodes the target city and fetches real-time temperature and precipitation probabilities.
+- **Live Currency API (ExchangeRate-API)**: Pulls real-time global exchange rates to accurately convert user USD budgets into local currency estimations.
+- **Accommodation & Flights DB**: Calculates lodging costs (allocating 40% of the target budget) and queries flight estimates from different global regions.
+- **Attractions & Food DB**: Performs multi-factor query filtering on tourism spots based on budget, interest tags, and pet-friendliness.
  
 ---
 
