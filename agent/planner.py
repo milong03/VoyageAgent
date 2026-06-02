@@ -489,6 +489,20 @@ INSTRUCTIONS:
             country = city
             city = None
 
+        # Expand common city abbreviations
+        abbreviations = {
+            "kl": "Kuala Lumpur",
+            "nyc": "New York City",
+            "la": "Los Angeles",
+            "sf": "San Francisco",
+            "hk": "Hong Kong",
+            "dc": "Washington",
+            "bkk": "Bangkok",
+            "dxb": "Dubai"
+        }
+        if city and city.lower() in abbreviations:
+            city = abbreviations[city.lower()]
+
         # 2. Budget extraction
         budget = None
         budget_match = re.search(r'(-?\d+)\s*(?:budget|dollars|usd|max)', text_lower)
