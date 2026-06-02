@@ -189,7 +189,7 @@ INSTRUCTIONS:
         # If LLM failed, tell the user explicitly why they can't ask dynamic questions
         if gemini_error or not self.llm_available:
             return (
-                f"> **🔌 Local Simulation Mode Active**\n>\n"
+                f"> **🔌 Gemini API Key Not Working**\n>\n"
                 f"> I cannot answer dynamic follow-up questions like *\"{user_query}\"* right now because my connection to Gemini is offline.\n"
                 f"> *(Reason: {gemini_error if gemini_error else 'No API Key configured'})*\n>\n"
                 f"> To enable full conversational context and recommendations, please enter a valid Gemini API Key in the Settings menu."
