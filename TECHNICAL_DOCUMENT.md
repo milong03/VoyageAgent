@@ -1,11 +1,11 @@
-# ✈️ VoyageAgent: Technical Deliverables & Architecture Document
+# VoyageAgent: Technical Deliverables & Architecture Document
 
 This document serves as the formal **Brief Technical Document and Project Summary** for the **VoyageAgent** travel planning AI assistant, fulfilling the assessment deliverables. The complete codebase is pushed and live at:
-🔗 **GitHub Repository**: [https://github.com/milong03/VoyageAgent](https://github.com/milong03/VoyageAgent)
+**GitHub Repository**: [https://github.com/milong03/VoyageAgent](https://github.com/milong03/VoyageAgent)
 
 ---
 
-## 📂 1. Modular Codebase & File Architecture
+## 1. Modular Codebase & File Architecture
 
 VoyageAgent is built using a highly decoupled, modular design pattern to ensure scalability, ease of testing, and maintenance.
 
@@ -36,11 +36,11 @@ c:\Users\Administrator\Desktop\intern\
 
 ---
 
-## 🌐 2. REST API & Interactive UI Demo
+## 2. REST API & Interactive UI Demo
 
 VoyageAgent exposes a complete REST API alongside an interactive single-page dashboard.
 
-### 🔌 Interactive REST API Endpoints
+### Interactive REST API Endpoints
 * **`POST /api/chat`**: Handles conversation queries, extracts parameters, coordinates planning sub-tasks, triggers tools/RAG, auto-persists preferences in FAISS, and returns a compiled itinerary.
 * **`GET /api/preferences`**: Retrieves all active vector preferences from the FAISS database.
 * **`POST /api/preferences`**: Manually indexes a travel preference inside the FAISS database.
@@ -51,14 +51,14 @@ VoyageAgent exposes a complete REST API alongside an interactive single-page das
 
 > **Swagger Playground**: Try the endpoints in real-time under the auto-generated Swagger UI at `/docs` (e.g. `http://127.0.0.1:8000/docs`).
 
-### 🎨 Premium Glassmorphism UI SPA
+### Premium Glassmorphism UI SPA
 * **Desktop Grid**: Displays an elegant 3-column cosmic slate layout—Reasoning Timeline on the left, Chat Console in the middle, and FAISS Vector Memory Manager on the right.
-* **Mobile-Responsive Tabbing (<= 1024px)**: Collapses column spans and injects a premium mobile tab bar (💬 **Chat** | 🧠 **Reasoning** | 💾 **FAISS Memory**), allowing a 100% full-feature mobile experience.
+* **Mobile-Responsive Tabbing (<= 1024px)**: Collapses column spans and injects a premium mobile tab bar (Chat | Reasoning | FAISS Memory), allowing a 100% full-feature mobile experience.
 * **Typing Indicator & Timeline**: Renders micro-animations for the planning steps and Multi-Hop RAG trace, bringing the agent's inner workings alive.
 
 ---
 
-## 📐 3. System Architecture & Core Flow
+## 3. System Architecture & Core Flow
 
 VoyageAgent coordinates memory, RAG, and tools through a centralized **Plan-and-Execute Loop**:
 
@@ -112,7 +112,7 @@ VoyageAgent coordinates memory, RAG, and tools through a centralized **Plan-and-
 
 ---
 
-## 🛠️ 4. Tool Design & Selection
+## 4. Tool Design & Selection
 
 Four distinct custom tools are developed inside [agent/tools.py](file:///c:/Users/Administrator/Desktop/intern/agent/tools.py) to supply the agent with dynamic decision-making capabilities:
 1. **Weather Tool (`get_weather`)**: Fetches temperature, average humidity, and precipitation probability, allowing the planner to inject packing or schedule warnings in the itinerary.
@@ -122,7 +122,7 @@ Four distinct custom tools are developed inside [agent/tools.py](file:///c:/User
 
 ---
 
-## 🧠 5. Double-Layer Memory Design
+## 5. Double-Layer Memory Design
 
 To remember user preferences during chat turns and across active user sessions, VoyageAgent features a robust **Dual-Layer Memory**:
 
@@ -138,7 +138,7 @@ Allows the agent to remember traveler profiles across multiple sessions and rebo
 
 ---
 
-## 🔍 6. Multi-Hop RAG Mechanism
+## 6. Multi-Hop RAG Mechanism
 
 For deep and nuanced travel suggestions, VoyageAgent bypasses simple search queries in favor of a **Two-Stage Multi-Hop RAG**:
 

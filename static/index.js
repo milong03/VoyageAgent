@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Wipe FAISS Database
     btnWipeMemory.addEventListener("click", async () => {
-        if (confirm("⚠️ CRITICAL WARNING!\n\nThis will permanently wipe out all preferences indexed in your FAISS vector database. Are you sure?")) {
+        if (confirm("CRITICAL WARNING!\n\nThis will permanently wipe out all preferences indexed in your FAISS vector database. Are you sure?")) {
             try {
                 const res = await fetch("/api/clear?session=false&long_term=true", { method: "POST" });
                 if (res.ok) {
@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error("Error getting agent response:", err);
-            appendMessage("assistant", `❌ **System Error:** Failed to connect to Travel Agent. Details: \`${err.message}\``);
+            appendMessage("assistant", `**System Error:** Failed to connect to Travel Agent. Details: \`${err.message}\``);
         } finally {
             typingIndicator.classList.add("hidden");
             isRequestActive = false;

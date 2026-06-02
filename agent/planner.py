@@ -363,11 +363,11 @@ Structure your response perfectly in Markdown:
         # Build Markdown
         md = []
         md.append(f"# Personalized 2-Day Itinerary: {city}")
-        md.append(f"\n### 🌤️ Weather Forecast for {city}")
+        md.append(f"\n### Weather Forecast for {city}")
         md.append(f"> **{weather.get('summary')}**\n> - **Average Temperature**: {weather.get('avg_temp_c')}°C\n> - **Chance of Rain**: {weather.get('chance_of_rain')}\n> - **Humidity**: {weather.get('humidity')}")
         
         md.append(f"\n---\n")
-        md.append(f"## 🏨 Recommended Lodging")
+        md.append(f"## Recommended Lodging")
         md.append(f"**{hotel_name}**")
         if selected_hotel:
             md.append(f"- **Price**: ${selected_hotel.get('price_per_night_usd', 0)}/night (Total for 2 nights: **${hotel_cost_2_nights}**)")
@@ -378,14 +378,14 @@ Structure your response perfectly in Markdown:
             md.append(f"- *Advice: No lodging in our database matches both your max hotel budget limit and pet-friendliness requirements. Consider adjusting your overall budget limit or relaxing pet constraints.*")
         
         md.append(f"\n---\n")
-        md.append(f"## 🗺️ Day-by-Day Travel Schedule")
+        md.append(f"## Day-by-Day Travel Schedule")
         
         # Day 1
-        md.append(f"### 🗓️ Day 1: Exploring Core Heritage & Landmarks")
+        md.append(f"### Day 1: Exploring Core Heritage & Landmarks")
         md.append(f"- **09:00 AM - Morning Exploration | {d1_morn['name']}**")
         md.append(f"  - **Cost**: ${d1_morn.get('cost_usd', 0)} | **Duration**: {d1_morn.get('duration_hours', 2)} hours")
         md.append(f"  - *{d1_morn.get('description', '')}*")
-        md.append(f"  - 💡 *Tip*: {d1_morn.get('best_time', 'Go early for the best experience.')}")
+        md.append(f"  - *Tip*: {d1_morn.get('best_time', 'Go early for the best experience.')}")
         
         md.append(f"- **12:30 PM - Lunch Break**")
         md.append(f"  - Try local specialties in the central food markets.")
@@ -393,17 +393,17 @@ Structure your response perfectly in Markdown:
         md.append(f"- **02:00 PM - Afternoon Sightseeing | {d1_aft['name']}**")
         md.append(f"  - **Cost**: ${d1_aft.get('cost_usd', 0)} | **Duration**: {d1_aft.get('duration_hours', 2)} hours")
         md.append(f"  - *{d1_aft.get('description', '')}*")
-        md.append(f"  - 💡 *Tip*: {d1_aft.get('best_time', 'Recommended in the afternoon.')}")
+        md.append(f"  - *Tip*: {d1_aft.get('best_time', 'Recommended in the afternoon.')}")
         
         md.append(f"- **06:00 PM - Dinner & Evening Walk**")
         md.append(f"  - Head out for a relaxed dinner near {hotel_name}.")
 
         # Day 2
-        md.append(f"\n### 🗓️ Day 2: Modern Culture & Immersion")
+        md.append(f"\n### Day 2: Modern Culture & Immersion")
         md.append(f"- **09:00 AM - Morning Activity | {d2_morn['name']}**")
         md.append(f"  - **Cost**: ${d2_morn.get('cost_usd', 0)} | **Duration**: {d2_morn.get('duration_hours', 2)} hours")
         md.append(f"  - *{d2_morn.get('description', '')}*")
-        md.append(f"  - 💡 *Tip*: {d2_morn.get('best_time', 'Early visit suggested.')}")
+        md.append(f"  - *Tip*: {d2_morn.get('best_time', 'Early visit suggested.')}")
         
         md.append(f"- **12:00 PM - Lunch**")
         md.append(f"  - Relax at a pet-friendly cafe or local street vendor.")
@@ -411,14 +411,14 @@ Structure your response perfectly in Markdown:
         md.append(f"- **02:00 PM - Special Interest Visit | {d2_aft['name']}**")
         md.append(f"  - **Cost**: ${d2_aft.get('cost_usd', 0)} | **Duration**: {d2_aft.get('duration_hours', 2)} hours")
         md.append(f"  - *{d2_aft.get('description', '')}*")
-        md.append(f"  - 💡 *Tip*: {d2_aft.get('best_time', 'Great spot to close out your trip.')}")
+        md.append(f"  - *Tip*: {d2_aft.get('best_time', 'Great spot to close out your trip.')}")
         
         md.append(f"- **06:00 PM - Farewell Sunset Walk**")
         md.append(f"  - Grab some street eats and reflect on an amazing weekend.")
         
         # Budget breakdown table
         md.append(f"\n---\n")
-        md.append(f"## 📊 Estimated Budget Breakdown")
+        md.append(f"## Estimated Budget Breakdown")
         md.append(f"| Category | Estimated Cost (USD) | Details |")
         md.append(f"| :--- | :--- | :--- |")
         md.append(f"| **Lodging** | ${hotel_cost_2_nights:.2f} | 2 Nights at {hotel_name} |")
@@ -430,7 +430,7 @@ Structure your response perfectly in Markdown:
         
         # Multi-Hop RAG insights
         md.append(f"\n---\n")
-        md.append(f"## 💡 Deep Local Insights & Guidelines (Multi-Hop RAG)")
+        md.append(f"## Deep Local Insights & Guidelines (Multi-Hop RAG)")
         for key, snippet in TRAVEL_BLOGS.items():
             if city.lower().strip() in key or ("nakamise" in key and city.lower().strip() == "tokyo") or ("tanjong" in key and city.lower().strip() == "singapore"):
                 md.append(f"\n- **{key.replace('_', ' ').title()}**:")
