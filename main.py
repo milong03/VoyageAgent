@@ -54,7 +54,7 @@ class ConfigResponse(BaseModel):
 # --- API Routes ---
 
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest):
+def chat_endpoint(request: ChatRequest):
     """Interacts with the Travel Agent to plan trips, leveraging short-term memory and tools."""
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
@@ -74,14 +74,14 @@ async def chat_endpoint(request: ChatRequest):
 
 
 @app.get("/api/preferences", response_model=List[PreferenceItem])
-async def get_preferences():
+def get_preferences():
     """Retrieves all long-term preferences stored in the FAISS vector database."""
     prefs = agent.memory.get_all_preferences()
     return [{"index": i, "preference": p} for i, p in enumerate(prefs)]
 
 
 @app.post("/api/preferences")
-async def add_preference(request: PreferenceRequest):
+def add_preference(request: PreferenceRequest):
     """Directly inserts a travel preference into the FAISS vector database."""
     if not request.preference.strip():
         raise HTTPException(status_code=400, detail="Preference text cannot be empty")
@@ -93,7 +93,7 @@ async def add_preference(request: PreferenceRequest):
 
 
 @app.delete("/api/preferences/{index}")
-async def delete_preference(index: int):
+def delete_preference(index: int):
     """Deletes a preference from the FAISS database and rebuilds the index."""
     try:
         agent.memory.delete_preference(index)
@@ -103,7 +103,7 @@ async def delete_preference(index: int):
 
 
 @app.post("/api/config")
-async def configure_api_key(request: ApiKeyRequest):
+def configure_api_key(request: ApiKeyRequest):
     """Configures the Gemini API Key dynamically."""
     try:
         agent.update_api_key(request.api_key.strip())
@@ -117,7 +117,7 @@ async def configure_api_key(request: ApiKeyRequest):
 
 
 @app.get("/api/config", response_model=ConfigResponse)
-async def get_config():
+def get_config():
     """Checks the status of the backend agent capabilities (Gemini or Simulated, vector store status)."""
     return ConfigResponse(
         llm_available=agent.llm_available,
@@ -127,7 +127,7 @@ async def get_config():
 
 
 @app.post("/api/clear")
-async def clear_agent_memory(session: bool = True, long_term: bool = False):
+def clear_agent_memory(session: bool = True, long_term: bool = False):
     """Clears either active conversation context (short-term) or all long-term vector preferences."""
     messages = []
     if session:
