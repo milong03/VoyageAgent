@@ -198,17 +198,26 @@ class TravelAgentPlanner:
         elif "singapore" in text_lower:
             city = "Singapore"
         else:
-            # Dynamically extract any other city name from query pattern (e.g. trip to New York, weekend in London)
-            match = re.search(r'\b(?:trip to|visit|in|go to|weekend in|traveling to)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)', text)
+            # Case-insensitive extraction of 1-3 words after common travel keywords
+            match = re.search(r'\b(?:trip to|visit|go to|weekend in|travel to|traveling to)\s+([a-z]+(?:\s+[a-z]+){0,2})', text_lower)
             if match:
-                city = match.group(1).strip()
-            else:
-                # Fallback check for single proper nouns
-                for w in text.split():
-                    clean_w = w.strip(",.!?")
-                    if clean_w and clean_w[0].isupper() and clean_w.lower() not in ["i", "the", "a", "an", "my", "to", "in", "plan", "trip", "travel"]:
-                        city = clean_w
+                extracted_city = match.group(1).strip()
+                # Stop if it hits a conjunction or pronoun
+                stop_words = ["my", "with", "a", "an", "the", "on", "for", "and", "some", "budget", "in"]
+                city_words = []
+                for w in extracted_city.split():
+                    if w in stop_words:
                         break
+                    city_words.append(w.capitalize())
+                if city_words:
+                    city = " ".join(city_words)
+            
+            if not city:
+                # Fallback: check if they entered a single proper noun/word
+                words = [w.strip(",.!?") for w in text.split()]
+                non_stop = [w for w in words if w.lower() not in ["i", "want", "to", "plan", "a", "trip", "visit", "go", "weekend", "in", "with", "my", "dog", "cat", "pet", "budget", "and", "the", "an"]]
+                if len(non_stop) == 1:
+                    city = non_stop[0].capitalize()
             
         # 2. Budget extraction
         budget = None
