@@ -76,8 +76,8 @@ Rather than relying on fragile, multi-turn LLM loops that are prone to latency s
 ### 4. Dynamic Tool Suite
 - **Live Weather API (Open-Meteo)**: Dynamically geocodes the target city and fetches real-time temperature and precipitation probabilities.
 - **Live Currency API (ExchangeRate-API)**: Pulls real-time global exchange rates to accurately convert user USD budgets into local currency estimations.
-- **Accommodation & Flights DB**: Calculates lodging costs (allocating 40% of the target budget) and queries flight estimates from different global regions.
-- **Attractions & Food DB**: Performs multi-factor query filtering on tourism spots based on budget, interest tags, and pet-friendliness.
+- **Deterministic Flight Estimator**: Calculates semi-realistic round-trip flight costs based on a deterministic string hash of the origin and destination, intelligently bypassing long-haul pricing for domestic regional routes.
+- **Accommodation & Attractions DB**: Performs multi-factor query filtering on tourism spots and hotels based on budget, interest tags, and pet-friendliness.
  
 ---
 
