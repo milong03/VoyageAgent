@@ -26,18 +26,32 @@ TRAVEL_CONCEPTS = [
 ]
 
 class ShortTermMemory:
-    """Manages active conversation context (in-memory)."""
+    """Manages active conversation context grouped by city/topic."""
     def __init__(self):
-        self.history = []
+        self.chats = {"default": []}
+        self.active_city = "default"
 
-    def add_message(self, role: str, content: str):
-        self.history.append({"role": role, "content": content})
+    def set_active_city(self, city: str):
+        if city:
+            city_key = city.lower().strip()
+            self.active_city = city_key
+            if city_key not in self.chats:
+                self.chats[city_key] = []
 
-    def get_context(self) -> list:
-        return self.history
+    def add_message(self, role: str, content: str, city: str = None):
+        if city:
+            self.set_active_city(city)
+        self.chats[self.active_city].append({"role": role, "content": content})
+
+    def get_context(self, city: str = None) -> list:
+        if city:
+            city_key = city.lower().strip()
+            return self.chats.get(city_key, [])
+        return self.chats.get(self.active_city, [])
 
     def clear(self):
-        self.history = []
+        self.chats = {"default": []}
+        self.active_city = "default"
 
 
 class FAISSPreferenceMemory:

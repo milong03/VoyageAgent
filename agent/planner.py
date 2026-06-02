@@ -152,7 +152,7 @@ class TravelAgentPlanner:
         """
         history = self.short_memory.get_context()
         history_text = "\n".join(
-            [f"{m['role'].upper()}: {m['content'][:500]}" for m in history[-6:]]
+            [f"{m['role'].upper()}: {m['content'][:500]}" for m in history]
         ) if history else "No prior conversation."
 
         # Pull any feasibility data if city is known
@@ -224,16 +224,17 @@ INSTRUCTIONS:
         plan_logs = []
         plan_logs.append("Analyzing user query and session context...")
 
-        # 1. Update short-term memory
-        self.short_memory.add_message("user", user_query)
+        # 1. Extract parameters first so we know which city context to use
+        extracted = self._extract_parameters(user_query)
+        city = extracted["city"]
 
-        # 2. Detect intent
+        # 2. Update short-term memory grouped by the active city
+        self.short_memory.add_message("user", user_query, city=city)
+
+        # 3. Detect intent (uses context of active city)
         intent = self._detect_intent(user_query)
         plan_logs.append(f"Intent detected: '{intent}'")
 
-        # 3. Extract parameters
-        extracted = self._extract_parameters(user_query)
-        city = extracted["city"]
         budget = extracted["budget"]
         pet_friendly = extracted["pet_friendly"]
         interests = extracted["interests"]
@@ -405,19 +406,19 @@ INSTRUCTIONS:
     def _extract_city_from_history(self) -> str:
         """Scans recent conversation history to find a city mentioned earlier."""
         history = self.short_memory.get_context()
-        for msg in reversed(history[-6:]):
+        for msg in reversed(history):
             params = self._extract_parameters(msg["content"])
             if params["city"]:
                 return params["city"]
         return None
 
     def _format_history_for_prompt(self) -> str:
-        """Formats the last few turns of conversation for injection into the Gemini prompt."""
+        """Formats the entire conversation history for this city for injection into the Gemini prompt."""
         history = self.short_memory.get_context()
         if not history or len(history) <= 1:
-            return "No prior conversation in this session."
+            return "No prior conversation for this destination."
         # Exclude the most recent user message (already in query)
-        recent = history[-5:-1]
+        recent = history[:-1]
         return "\n".join([f"{m['role'].upper()}: {m['content'][:600]}" for m in recent])
 
     def _extract_parameters(self, text: str) -> dict:
