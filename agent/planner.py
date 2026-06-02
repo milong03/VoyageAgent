@@ -66,6 +66,7 @@ Extract the following as a JSON object:
 - "city": The specific destination city. If the assistant just asked for the departure/origin city, do NOT map the user's answer to this field! Retain the destination from history.
 - "origin": The city the user is departing from. If the assistant just asked "which city will you be flying out of?" and the user replies with a city name, map it to "origin", NOT "city".
 - "country": The country mentioned, if any.
+- "is_domestic": boolean (true ONLY if you are absolutely certain the origin city and destination city are in the same country. false otherwise or if either is null).
 - "budget": Numeric maximum budget in USD, or null if none.
 - "pet_friendly": boolean (true/false)
 - "interests": list of string keywords (e.g. ["history", "food", "nature", "shopping"])
@@ -387,9 +388,10 @@ INSTRUCTIONS:
         plan_logs.append(f"Weather tool response: {weather_data.get('summary')} ({weather_data.get('avg_temp_c')}C)")
 
         # 9b. Sub-task 2b: Flights
-        plan_logs.append(f"Sub-task 2b: Estimating round-trip flights from {origin} to {city}...")
-        flight_data = self.tools.get_flight_estimate(origin, city)
-        plan_logs.append(f"Flight tool response: {flight_data.get('estimated_round_trip_usd')} USD")
+        is_domestic = extracted.get("is_domestic", False)
+        plan_logs.append(f"Sub-task 2b: Estimating round-trip flights from {origin} to {city} (Domestic: {is_domestic})...")
+        flight_data = self.tools.get_flight_estimate(origin, city, is_domestic)
+        plan_logs.append(f"Flight tool response: {flight_data.get('estimated_round_trip_usd')} USD via {flight_data.get('carrier')}")
 
         # 10. Sub-task 3: Accommodation
         plan_logs.append("Sub-task 3: Querying accommodation tool for hotels and flights...")

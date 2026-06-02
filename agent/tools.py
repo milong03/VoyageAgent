@@ -173,22 +173,29 @@ class TravelTools:
             
         return f"Search results for '{query}' came up empty. Local travel tip: When traveling, check opening hours ahead of time and keep local currency on hand."
 
-    def get_flight_estimate(self, origin: str, destination: str) -> dict:
-        """Deterministically generates a semi-realistic mock flight estimate based on city names."""
+    def get_flight_estimate(self, origin: str, destination: str, is_domestic: bool = False) -> dict:
+        """
+        Mocks a flight estimate based on origin and destination.
+        Uses a deterministic hash of the strings to generate consistent pricing.
+        """
         if not origin or not destination:
-            return {"error": "Origin or destination missing."}
+            return {"estimated_round_trip_usd": 0, "carrier": "Unknown"}
             
-        # Create a deterministic mock price based on string length hash
-        seed = len(origin) * len(destination) * sum([ord(c) for c in origin + destination])
-        mock_price = 300 + (seed % 1500)
+        combined = f"{origin.lower().strip()}-{destination.lower().strip()}"
+        hash_val = sum(ord(c) for c in combined)
         
-        airlines = ["Emirates", "Singapore Airlines", "Delta Airlines", "Korean Air", "Air France", "United Airlines", "British Airways"]
-        airline = airlines[seed % len(airlines)]
+        if is_domestic:
+            # Domestic flights are typically much cheaper
+            base_price = 50 + (hash_val % 150)
+            carriers = ["Domestic High-Speed Rail", "Regional Budget Air", "National Airlines"]
+        else:
+            # International long-haul pricing
+            base_price = 400 + (hash_val % 1400)
+            carriers = ["Emirates", "Singapore Airlines", "Qatar Airways", "Delta", "United"]
+            
+        carrier = carriers[hash_val % len(carriers)]
         
         return {
-            "origin": origin.title(),
-            "destination": destination.title(),
-            "estimated_round_trip_usd": mock_price,
-            "airline": airline,
-            "class": "Economy (Default) - Upgrade to Business/First if budget permits."
+            "estimated_round_trip_usd": base_price,
+            "carrier": carrier
         }
