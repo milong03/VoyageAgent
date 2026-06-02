@@ -286,6 +286,23 @@ INSTRUCTIONS:
 
         # 6. No city — ask for clarification
         if not city:
+            country = extracted.get("country")
+            if country:
+                clarification = (
+                    f"I see you want to visit {country.title()}! Since I plan highly detailed local itineraries, "
+                    f"could you tell me which specific city in {country.title()} you'd like to travel to?"
+                )
+                self.short_memory.add_message("assistant", clarification, city="default")
+                return {
+                    "response": clarification,
+                    "planning_steps": plan_logs,
+                    "parameters": extracted,
+                    "preferences_used": [],
+                    "hops_log": [],
+                    "success": False,
+                    "clarification_needed": True
+                }
+
             # Try to pull city from recent conversation history
             city = self._extract_city_from_history()
             if city:
@@ -295,7 +312,7 @@ INSTRUCTIONS:
                     "I would love to help you plan an amazing 2-day trip! "
                     "Which city would you like to visit? I can plan for any city in the world."
                 )
-                self.short_memory.add_message("assistant", clarification)
+                self.short_memory.add_message("assistant", clarification, city="default")
                 return {
                     "response": clarification,
                     "planning_steps": plan_logs,
@@ -467,7 +484,9 @@ INSTRUCTIONS:
             "netherlands", "belgium", "austria", "portugal", "russia", "new zealand",
             "south africa", "argentina", "colombia", "peru", "chile", "ireland", "poland"
         }
+        country = None
         if city and city.lower() in countries:
+            country = city
             city = None
 
         # 2. Budget extraction
@@ -496,7 +515,7 @@ INSTRUCTIONS:
             if kw in text_lower:
                 interests.append(kw)
 
-        return {"city": city, "budget": budget, "pet_friendly": pet_friendly, "interests": interests}
+        return {"city": city, "country": country, "budget": budget, "pet_friendly": pet_friendly, "interests": interests}
 
     def _detect_new_preferences(self, text: str, params: dict) -> list:
         """Finds long-term preferences that should be stored in FAISS."""
