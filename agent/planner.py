@@ -461,9 +461,13 @@ INSTRUCTIONS:
             city = "Paris"
         elif "singapore" in text_lower:
             city = "Singapore"
+        elif "rome" in text_lower:
+            city = "Rome"
+        elif "london" in text_lower:
+            city = "London"
         else:
             match = re.search(
-                r'\b(?:trip to|visit|go to|weekend in|travel to|traveling to)\s+([a-z]+(?:\s+[a-z]+){0,2})',
+                r'\b(?:how about|what about|trip to|visit|go to|weekend in|travel to|traveling to)\s+([a-z]+(?:\s+[a-z]+){0,2})',
                 text_lower
             )
             if match:
@@ -481,7 +485,8 @@ INSTRUCTIONS:
                 words = [w.strip(",.!?") for w in text.split()]
                 non_stop = [w for w in words if w.lower() not in [
                     "i", "want", "to", "plan", "a", "trip", "visit", "go", "weekend",
-                    "in", "with", "my", "dog", "cat", "pet", "budget", "and", "the", "an"
+                    "in", "with", "my", "dog", "cat", "pet", "budget", "and", "the", "an",
+                    "how", "about", "what", "is", "for", "any", "good"
                 ]]
                 if len(non_stop) == 1:
                     city = non_stop[0].capitalize()
