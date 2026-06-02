@@ -171,6 +171,7 @@ class TravelAgentPlanner:
                     f"\n- Estimated comfortable 2-day budget: ${min(prices)*2 + 200:.0f}"
                 )
 
+        gemini_error = None
         if self.llm_available:
             prompt = f"""You are VoyageAgent, an Intelligent Travel Planning AI. Answer the user's question helpfully and conversationally.
 
@@ -192,7 +193,8 @@ INSTRUCTIONS:
                 response_obj = self.model.generate_content(prompt)
                 return response_obj.text
             except Exception as e:
-                pass
+                gemini_error = str(e)
+                print(f"Advisory Gemini error: {gemini_error}")
 
         # Local fallback for advisory queries
         if city and intent == "budget_advice":
@@ -209,6 +211,15 @@ INSTRUCTIONS:
                 f"| **Comfortable recommended** | **${feasibility['recommended_budget']}** |\n\n"
                 f"For a more relaxed experience with mid-range hotels and activities, "
                 f"I would recommend budgeting around **${feasibility['recommended_budget']}**."
+            )
+
+        # If LLM failed, tell the user explicitly why they can't ask dynamic questions
+        if gemini_error or not self.llm_available:
+            return (
+                f"> **🔌 Local Simulation Mode Active**\n>\n"
+                f"> I cannot answer dynamic follow-up questions like *\"{user_query}\"* right now because my connection to Gemini is offline.\n"
+                f"> *(Reason: {gemini_error if gemini_error else 'No API Key configured'})*\n>\n"
+                f"> To enable full conversational context and recommendations, please enter a valid Gemini API Key in the Settings menu."
             )
 
         return (
