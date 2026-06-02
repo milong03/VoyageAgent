@@ -88,7 +88,7 @@ class TravelAgentPlanner:
         # 4. Check for ambiguous inputs (e.g. no city specified)
         if not city:
             clarification = ("I'd love to help you plan an amazing 2-day trip! Could you please let me know "
-                             "which city you'd like to visit? I currently support Tokyo, Paris, and Singapore.")
+                             "which city you'd like to visit? I can plan for any city in the world!")
             self.short_memory.add_message("assistant", clarification)
             return {
                 "response": clarification,
@@ -197,6 +197,18 @@ class TravelAgentPlanner:
             city = "Paris"
         elif "singapore" in text_lower:
             city = "Singapore"
+        else:
+            # Dynamically extract any other city name from query pattern (e.g. trip to New York, weekend in London)
+            match = re.search(r'\b(?:trip to|visit|in|go to|weekend in|traveling to)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)', text)
+            if match:
+                city = match.group(1).strip()
+            else:
+                # Fallback check for single proper nouns
+                for w in text.split():
+                    clean_w = w.strip(",.!?")
+                    if clean_w and clean_w[0].isupper() and clean_w.lower() not in ["i", "the", "a", "an", "my", "to", "in", "plan", "trip", "travel"]:
+                        city = clean_w
+                        break
             
         # 2. Budget extraction
         budget = None
