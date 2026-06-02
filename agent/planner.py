@@ -218,13 +218,29 @@ class TravelAgentPlanner:
                 non_stop = [w for w in words if w.lower() not in ["i", "want", "to", "plan", "a", "trip", "visit", "go", "weekend", "in", "with", "my", "dog", "cat", "pet", "budget", "and", "the", "an"]]
                 if len(non_stop) == 1:
                     city = non_stop[0].capitalize()
+
+        # Check if the extracted city name is a known country name
+        countries = {
+            "japan", "france", "italy", "germany", "spain", "uk", "usa", "united states", "united kingdom",
+            "canada", "australia", "china", "india", "brazil", "mexico", "korea", "malaysia", "thailand",
+            "vietnam", "indonesia", "philippines", "greece", "egypt", "turkey", "switzerland", "sweden",
+            "norway", "denmark", "finland", "netherlands", "belgium", "austria", "portugal", "russia",
+            "new zealand", "south africa", "argentina", "colombia", "peru", "chile", "ireland", "poland"
+        }
+        if city and city.lower() in countries:
+            city = None
             
         # 2. Budget extraction
         budget = None
-        budget_match = re.search(r'\$?(\d+)\s*(?:budget|dollars|usd|max)', text_lower)
+        # Pattern 1: number followed by keywords (e.g. -1000 budget, 1000 usd)
+        budget_match = re.search(r'(-?\d+)\s*(?:budget|dollars|usd|max)', text_lower)
         if not budget_match:
-            # Try plain number next to dollar sign
-            budget_match = re.search(r'\$\s*(\d+)', text_lower)
+            # Pattern 2: keywords followed by number (e.g. budget of -1000, max 1000, budget 1000)
+            budget_match = re.search(r'(?:budget\s*of|budget\s*:\s*|budget|max\s*of|max\s*:\s*|max)\s*\$?(-?\d+)', text_lower)
+        if not budget_match:
+            # Pattern 3: plain dollar sign followed by number (e.g. $-1000 or $1000)
+            budget_match = re.search(r'\$\s*(-?\d+)', text_lower)
+            
         if budget_match:
             budget = float(budget_match.group(1))
             
