@@ -64,6 +64,7 @@ USER MESSAGE:
 Extract the following as a JSON object:
 - "intent": one of ["plan_trip", "budget_advice", "follow_up", "general_advice"]
 - "city": The specific destination city. If they mention a country but no city, leave city as null.
+- "origin": The city the user is departing from. Leave as null if not mentioned anywhere in the prompt or history.
 - "country": The country mentioned, if any.
 - "budget": Numeric maximum budget in USD, or null if none.
 - "pet_friendly": boolean (true/false)
@@ -335,6 +336,24 @@ INSTRUCTIONS:
                     "clarification_needed": True
                 }
 
+        # 6.5. No origin — ask for clarification
+        origin = extracted.get("origin")
+        if not origin:
+            clarification = (
+                f"I have {city.title()} locked in as your destination! "
+                "To ensure I can accurately calculate your round-trip flight costs and maximize your budget, could you please tell me which city you will be flying out of?"
+            )
+            self.short_memory.add_message("assistant", clarification, city=city)
+            return {
+                "response": clarification,
+                "planning_steps": plan_logs,
+                "parameters": extracted,
+                "preferences_used": [],
+                "hops_log": [],
+                "success": False,
+                "clarification_needed": True
+            }
+
         # 7. Budget feasibility check
         plan_logs.append(f"Sub-task 0: Checking budget feasibility for {city}...")
         feasibility = self._check_budget_feasibility(city, budget, pet_friendly)
@@ -351,6 +370,11 @@ INSTRUCTIONS:
         plan_logs.append(f"Sub-task 2: Fetching live weather tool data for {city}...")
         weather_data = self.tools.get_weather(city)
         plan_logs.append(f"Weather tool response: {weather_data.get('summary')} ({weather_data.get('avg_temp_c')}C)")
+
+        # 9b. Sub-task 2b: Flights
+        plan_logs.append(f"Sub-task 2b: Estimating round-trip flights from {origin} to {city}...")
+        flight_data = self.tools.get_flight_estimate(origin, city)
+        plan_logs.append(f"Flight tool response: {flight_data.get('estimated_round_trip_usd')} USD")
 
         # 10. Sub-task 3: Accommodation
         plan_logs.append("Sub-task 3: Querying accommodation tool for hotels and flights...")
@@ -377,10 +401,12 @@ INSTRUCTIONS:
             prompt = self._compile_llm_prompt(
                 query=user_query,
                 city=city,
+                origin=origin,
                 budget=budget,
                 pet_friendly=pet_friendly,
                 interests=interests,
                 weather=weather_data,
+                flights=flight_data,
                 accommodation=accommodation_data,
                 attractions=attractions_list,
                 currency=currency_data,
@@ -486,8 +512,8 @@ INSTRUCTIONS:
             prefs.append(f"The user is highly interested in {interest} activities during travel.")
         return prefs
 
-    def _compile_llm_prompt(self, query, city, budget, pet_friendly, interests,
-                            weather, accommodation, attractions, currency, rag_context,
+    def _compile_llm_prompt(self, query, city, origin, budget, pet_friendly, interests,
+                            weather, flights, accommodation, attractions, currency, rag_context,
                             preferences, feasibility, history_context) -> str:
         """Compiles the full context-aware prompt to send to Gemini."""
 
@@ -556,9 +582,10 @@ Plan-and-Execute architecture with real-time tool use and multi-hop RAG from Wik
    - You MUST adapt your itinerary to strictly adhere to these preferences (e.g., if it says they are vegan, ONLY suggest vegan restaurants; if it says they have a dog, ONLY suggest pet-friendly activities and hotels).
    - Acknowledge their long-term preferences naturally in the Trip Overview (e.g., "I kept your vegan diet and pet dog in mind while planning...").
 
-8. BUDGET SCALING & LUXURY REQUESTS
-   - If the user provides a high budget (e.g., over $2000) or requests a "luxury" or "premium" trip, you MUST scale your recommendations to match!
-   - Do NOT suggest $100/night hotels or cheap street food if they have a $5000 budget. Suggest 5-star luxury hotels, Michelin-starred dining, private tours, and premium experiences to realistically utilize their massive budget.
+8. BUDGET SCALING & FLIGHT MAXIMIZATION
+   - You MUST utilize as close to 100% of the user's maximum budget as possible.
+   - Include the "ESTIMATED FLIGHTS DATA" in your final cost breakdown.
+   - If there is a massive surplus (e.g., $3000 left over after flights and standard hotels), you are STRICTLY REQUIRED to aggressively upgrade the itinerary. Allocate the excess cash to 5-star hotel suites, First-Class flight upgrades, private drivers, and Michelin-starred tasting menus. DO NOT leave large chunks of the budget unspent!
 
 === CONVERSATION HISTORY (last 5 turns) ===
 {history_context}
@@ -579,6 +606,9 @@ Interests: {interests if interests else "Not specified"}
 
 === LIVE WEATHER DATA ===
 {json.dumps(weather, indent=2)}
+
+=== ESTIMATED FLIGHTS DATA ===
+{json.dumps(flights, indent=2)}
 
 === ACCOMMODATION OPTIONS FROM TOOL ===
 {json.dumps(accommodation, indent=2)}

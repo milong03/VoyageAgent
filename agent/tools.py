@@ -172,3 +172,23 @@ class TravelTools:
             return f"Search Results for '{query}':\n" + "\n".join(matches)
             
         return f"Search results for '{query}' came up empty. Local travel tip: When traveling, check opening hours ahead of time and keep local currency on hand."
+
+    def get_flight_estimate(self, origin: str, destination: str) -> dict:
+        """Deterministically generates a semi-realistic mock flight estimate based on city names."""
+        if not origin or not destination:
+            return {"error": "Origin or destination missing."}
+            
+        # Create a deterministic mock price based on string length hash
+        seed = len(origin) * len(destination) * sum([ord(c) for c in origin + destination])
+        mock_price = 300 + (seed % 1500)
+        
+        airlines = ["Emirates", "Singapore Airlines", "Delta Airlines", "Korean Air", "Air France", "United Airlines", "British Airways"]
+        airline = airlines[seed % len(airlines)]
+        
+        return {
+            "origin": origin.title(),
+            "destination": destination.title(),
+            "estimated_round_trip_usd": mock_price,
+            "airline": airline,
+            "class": "Economy (Default) - Upgrade to Business/First if budget permits."
+        }
