@@ -86,10 +86,12 @@ Respond ONLY with valid JSON matching this schema.
             if history:
                 last_msg = history[-1].get("content", "").lower()
                 if "flying out of" in last_msg or "departure" in last_msg:
-                    # The LLM often stubbornly maps single-word cities to "city" even if we asked for origin
-                    if extracted.get("city") and not extracted.get("origin"):
-                        extracted["origin"] = extracted["city"]
+                    # The LLM often stubbornly maps single-word cities/countries to "city" or "country" even if we asked for origin
+                    location = extracted.get("city") or extracted.get("country")
+                    if location and not extracted.get("origin"):
+                        extracted["origin"] = location
                         extracted["city"] = None
+                        extracted["country"] = None
                         
             return extracted
         except Exception as e:
@@ -311,28 +313,29 @@ INSTRUCTIONS:
 
         # 6. No city — ask for clarification
         if not city:
-            country = extracted.get("country")
-            if country:
-                clarification = (
-                    f"I see you want to visit {country.title()}! Since I plan highly detailed local itineraries, "
-                    f"could you tell me which specific city in {country.title()} you'd like to travel to?"
-                )
-                self.short_memory.add_message("assistant", clarification, city="default")
-                return {
-                    "response": clarification,
-                    "planning_steps": plan_logs,
-                    "parameters": extracted,
-                    "preferences_used": [],
-                    "hops_log": [],
-                    "success": False,
-                    "clarification_needed": True
-                }
-
-            # Try to pull city from recent conversation history
+            # Try to pull city from recent conversation history first!
             city = self._extract_city_from_history()
             if city:
                 plan_logs.append(f"Resolved city '{city}' from conversation history.")
             else:
+                country = extracted.get("country")
+                if country:
+                    clarification = (
+                        f"I see you want to visit {country.title()}! Since I plan highly detailed local itineraries, "
+                        f"could you tell me which specific city in {country.title()} you'd like to travel to?"
+                    )
+                    self.short_memory.add_message("assistant", clarification, city="default")
+                    return {
+                        "response": clarification,
+                        "planning_steps": plan_logs,
+                        "parameters": extracted,
+                        "preferences_used": [],
+                        "hops_log": [],
+                        "success": False,
+                        "clarification_needed": True
+                    }
+
+                # If absolutely no city or country is found anywhere
                 clarification = (
                     "I would love to help you plan an amazing 2-day trip! "
                     "Which city would you like to visit? I can plan for any city in the world."
