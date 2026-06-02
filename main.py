@@ -146,6 +146,7 @@ async def clear_agent_memory(session: bool = True, long_term: bool = False):
 os.makedirs("static", exist_ok=True)
 
 @app.get("/")
+@app.head("/")
 async def read_index():
     """Serves the main single-page web UI."""
     return FileResponse("static/index.html")

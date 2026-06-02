@@ -32,9 +32,24 @@
                 <button id="btn-settings" class="btn-icon-label" title="Configure Agent API Keys">
                     <i class="fa-solid fa-sliders"></i>
                     <span>Settings</span>
-                </button>
             </div>
         </header>
+
+        <!-- MOBILE TAB NAVIGATION (Visible only on <= 1024px screens) -->
+        <nav class="mobile-tabs">
+            <button class="mobile-tab-btn active" data-target="panel-chat">
+                <i class="fa-solid fa-comments"></i>
+                <span>Chat</span>
+            </button>
+            <button class="mobile-tab-btn" data-target="panel-left">
+                <i class="fa-solid fa-brain"></i>
+                <span>Reasoning Trace</span>
+            </button>
+            <button class="mobile-tab-btn" data-target="panel-right">
+                <i class="fa-solid fa-database"></i>
+                <span>FAISS Memory</span>
+            </button>
+        </nav>
 
         <!-- MAIN LAYOUT GRID -->
         <main class="app-main-grid">

@@ -393,4 +393,35 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error fetching api settings:", err);
         }
     }
+
+    // --- MOBILE TABS NAVIGATION CONTROLLER ---
+    const mobileTabBtns = document.querySelectorAll(".mobile-tab-btn");
+    const panelLeft = document.querySelector(".panel-left");
+    const panelChat = document.querySelector(".panel-chat");
+    const panelRight = document.querySelector(".panel-right");
+
+    // Initialize active mobile panel
+    if (panelChat) panelChat.classList.add("active-mobile");
+
+    mobileTabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            // Remove active state from all mobile tab buttons
+            mobileTabBtns.forEach(b => b.classList.remove("active"));
+            // Add active state to clicked button
+            btn.classList.add("active");
+            
+            // Get target panel class
+            const target = btn.getAttribute("data-target");
+            
+            // Remove active-mobile from all panels
+            if (panelLeft) panelLeft.classList.remove("active-mobile");
+            if (panelChat) panelChat.classList.remove("active-mobile");
+            if (panelRight) panelRight.classList.remove("active-mobile");
+            
+            // Add active-mobile to target panel
+            if (target === "panel-left" && panelLeft) panelLeft.classList.add("active-mobile");
+            if (target === "panel-chat" && panelChat) panelChat.classList.add("active-mobile");
+            if (target === "panel-right" && panelRight) panelRight.classList.add("active-mobile");
+        });
+    });
 });
