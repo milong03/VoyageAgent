@@ -249,15 +249,23 @@ INSTRUCTIONS:
             }
 
         # 1. Extract parameters and intent using Gemini
-        plan_logs.append("Calling Gemini pre-processing engine...")
+        plan_logs.append("Extracting conversational intent and parameters...")
         try:
             extracted = self._analyze_query_with_llm(user_query)
         except Exception as e:
             plan_logs.append(f"Pre-processing error: {e}")
             extracted = {"intent": "plan_trip", "city": None, "country": None, "budget": None, "pet_friendly": False, "interests": []}
+        
+        # Merge LLM parameters into our stateful short-term memory tracker.
+        # This prevents the LLM from "forgetting" constraints (like origin or budget) 
+        # in long conversations where the context window might get too large.
+        self.short_memory.update_parameters(extracted)
+        extracted = self.short_memory.get_parameters()
+        
+        intent = extracted.get("intent", "plan_trip")
+        plan_logs.append(f"Intent detected: {intent}")
 
         city = extracted.get("city")
-        intent = extracted.get("intent", "plan_trip")
         
         # 2. Update short-term memory grouped by the active city
         self.short_memory.add_message("user", user_query, city=city)

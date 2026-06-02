@@ -30,6 +30,17 @@ class ShortTermMemory:
     def __init__(self):
         self.chats = {"default": []}
         self.active_city = "default"
+        self.active_parameters = {}
+
+    def update_parameters(self, new_params: dict):
+        """Merges new LLM parameters with active state so they aren't forgotten."""
+        for k, v in new_params.items():
+            if v is not None:
+                # Never overwrite a valid parameter with None
+                self.active_parameters[k] = v
+
+    def get_parameters(self) -> dict:
+        return dict(self.active_parameters)
 
     def set_active_city(self, city: str):
         if city:
@@ -52,6 +63,7 @@ class ShortTermMemory:
     def clear(self):
         self.chats = {"default": []}
         self.active_city = "default"
+        self.active_parameters = {}
 
 
 class FAISSPreferenceMemory:
